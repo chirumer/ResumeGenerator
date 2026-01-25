@@ -1,51 +1,31 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useCallback, useMemo } from "react"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 
+/**
+ * Stub hook for work experience tag filtering.
+ * Filtering is not yet implemented for work experiences.
+ */
 export function useWorkExperienceTagFilter(workExperiences: WorkExperienceWithContent[]) {
-  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
+  const allTags: string[] = []
+  const selectedTags = new Set<string>()
 
-  // Extract all unique tags from work experiences
-  const allTags = useMemo(() => {
-    const tagSet = new Set<string>()
-    workExperiences.forEach((we) => we.tags.forEach((t) => tagSet.add(t)))
-    return Array.from(tagSet).sort()
+  const toggleTag = useCallback((_tag: string) => {
+    // No-op: filtering not implemented
+  }, [])
+
+  const filteredWorkExperiences = useMemo(() => {
+    return workExperiences // Pass through all items without filtering
   }, [workExperiences])
 
-  // Toggle tag selection
-  const toggleTag = useCallback((tag: string) => {
-    setSelectedTags((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(tag)) {
-        newSet.delete(tag)
-      } else {
-        newSet.add(tag)
-      }
-      return newSet
-    })
-  }, [])
-
-  // Filter work experiences based on selected tags (OR logic - show if any tag matches)
-  const filteredWorkExperiences = useMemo(() => {
-    if (selectedTags.size === 0) {
-      return workExperiences // No filter = show all
-    }
-    return workExperiences.filter((workExperience) =>
-      workExperience.tags.some((tag) => selectedTags.has(tag))
-    )
-  }, [workExperiences, selectedTags])
-
-  // Clear all tag filters
   const clearFilters = useCallback(() => {
-    setSelectedTags(new Set())
+    // No-op: filtering not implemented
   }, [])
 
-  // Check if a specific tag is selected
-  const isTagSelected = useCallback(
-    (tag: string) => selectedTags.has(tag),
-    [selectedTags]
-  )
+  const isTagSelected = useCallback(() => {
+    return false
+  }, [])
 
   return {
     allTags,
@@ -54,6 +34,6 @@ export function useWorkExperienceTagFilter(workExperiences: WorkExperienceWithCo
     filteredWorkExperiences,
     clearFilters,
     isTagSelected,
-    hasActiveFilters: selectedTags.size > 0,
+    hasActiveFilters: false,
   }
 }

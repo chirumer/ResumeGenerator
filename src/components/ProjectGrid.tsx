@@ -12,6 +12,9 @@ interface ProjectGridProps {
   getNote: (id: string) => string
   onNoteChange: (id: string, note: string) => void
   onArchiveToggle: (id: string) => void
+  getCategory: (id: string) => string | null
+  onCategoryChange: (id: string, category: string) => void
+  filteredCategories?: string[]
 }
 
 export function ProjectGrid({
@@ -23,6 +26,9 @@ export function ProjectGrid({
   getNote,
   onNoteChange,
   onArchiveToggle,
+  getCategory,
+  onCategoryChange,
+  filteredCategories,
 }: ProjectGridProps) {
   if (projects.length === 0) {
     return (
@@ -45,6 +51,10 @@ export function ProjectGrid({
           note={getNote(project.id)}
           onNoteChange={(note) => onNoteChange(project.id, note)}
           onArchiveToggle={() => onArchiveToggle(project.id)}
+          availableCategories={project.categories.map(c => c.category_name)}
+          selectedCategory={getCategory(project.id) || project.selectedCategory}
+          onCategoryChange={(category) => onCategoryChange(project.id, category)}
+          filteredCategories={filteredCategories}
         />
       ))}
     </div>
