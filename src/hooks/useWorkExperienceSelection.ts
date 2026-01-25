@@ -2,7 +2,7 @@
 
 import { useSelection } from "./useSelection"
 
-export function useProjectSelection() {
+export function useWorkExperienceSelection() {
   const selection = useSelection()
 
   return {

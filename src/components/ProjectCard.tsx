@@ -48,7 +48,7 @@ export function ProjectCard({
   return (
     <Card
       className={cn(
-        "flex flex-col h-full transition-all",
+        "w-[350px] flex flex-col h-full transition-all",
         isSelected && "ring-2 ring-primary"
       )}
     >
