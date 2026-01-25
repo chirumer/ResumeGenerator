@@ -11,8 +11,14 @@ import {
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { GitCommit, ExternalLink, FileText, Github } from "lucide-react"
+import { GitCommit, ExternalLink, FileText, Github, MoreVertical, Archive, ArchiveRestore } from "lucide-react"
 import type { ProjectWithContent } from "@/types/project"
 import { cn } from "@/lib/utils"
 
@@ -24,6 +30,7 @@ interface ProjectCardProps {
   onViewDescription: () => void
   note: string
   onNoteChange: (note: string) => void
+  onArchiveToggle: () => void
 }
 
 export function ProjectCard({
@@ -34,6 +41,7 @@ export function ProjectCard({
   onViewDescription,
   note,
   onNoteChange,
+  onArchiveToggle,
 }: ProjectCardProps) {
   const hasGitHub = project.github.url && project.github.commit_count > 0
 
@@ -56,7 +64,31 @@ export function ProjectCard({
               {project.project_name}
             </CardTitle>
           </div>
-          <Switch checked={isSelected} onCheckedChange={onToggle} />
+          <div className="flex items-center gap-1">
+            <Switch checked={isSelected} onCheckedChange={onToggle} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onArchiveToggle}>
+                  {project.archived ? (
+                    <>
+                      <ArchiveRestore className="h-4 w-4 mr-2" />
+                      Unarchive
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="h-4 w-4 mr-2" />
+                      Archive
+                    </>
+                  )}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </CardHeader>
 

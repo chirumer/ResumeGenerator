@@ -8,6 +8,7 @@ const DATA_DIR = path.join(process.cwd(), "src", "data")
 class ProjectRepository {
   private static instance: ProjectRepository
   private cachedProjects: ProjectWithContent[] | null = null
+  private idCounter = new Map<string, number>()  // Track ID collisions
 
   private constructor() {}
 
@@ -25,6 +26,9 @@ class ProjectRepository {
     if (this.cachedProjects) {
       return this.cachedProjects
     }
+
+    // Reset ID counter for consistent ID generation
+    this.idCounter.clear()
 
     // Read and parse projects.json
     const projectsPath = path.join(DATA_DIR, "projects.json")
@@ -65,9 +69,15 @@ class ProjectRepository {
       fs.readFile(resumePath, "utf-8").catch(() => ""),
     ])
 
+    // Generate unique ID with collision handling
+    const baseId = this.slugify(project.project_name)
+    const count = this.idCounter.get(baseId) ?? 0
+    this.idCounter.set(baseId, count + 1)
+    const uniqueId = count > 0 ? `${baseId}-${count}` : baseId
+
     return {
       ...project,
-      id: this.slugify(project.project_name),
+      id: uniqueId,
       descriptionContent,
       resumePointsContent,
     }
@@ -75,12 +85,14 @@ class ProjectRepository {
 
   /**
    * Convert project name to URL-safe slug
+   * Preserves underscores to avoid collisions (e.g., "Employee-Management" vs "Employee_Management")
    */
   private slugify(name: string): string {
     return name
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
+      .replace(/\s+/g, "-")           // spaces to hyphens
+      .replace(/[^a-z0-9_-]+/g, "-")   // other non-alphanumeric to hyphens
+      .replace(/^-|-$/g, "")           // trim leading/trailing hyphens
   }
 
   /**
@@ -117,17 +129,17 @@ class ProjectRepository {
    */
   async updateProjectNote(projectId: string, note: string): Promise<void> {
     const projectsPath = path.join(DATA_DIR, "projects.json")
-    
+
     // Ensure we have the latest data
     // We intentionally don't use getAllProjects() here to avoid reading content files unnecessarily
     // and to ensure we're working with the raw JSON structure for writing.
     const projectsJson = await fs.readFile(projectsPath, "utf-8")
     const rawProjects = JSON.parse(projectsJson)
-    
+
     // We need to find the project. Since the raw JSON doesn't have IDs (slugs),
     // we need to match by slugifying the project_name.
     const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
-    
+
     if (projectIndex === -1) {
       throw new Error(`Project with ID ${projectId} not found`)
     }
@@ -151,10 +163,46 @@ class ProjectRepository {
   }
 
   /**
+   * Update the archived status for a specific project
+   */
+  async updateProjectArchived(projectId: string, archived: boolean): Promise<void> {
+    const projectsPath = path.join(DATA_DIR, "projects.json")
+
+    // Read the raw JSON
+    const projectsJson = await fs.readFile(projectsPath, "utf-8")
+    const rawProjects = JSON.parse(projectsJson)
+
+    // Find the project by slugified name
+    const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
+
+    if (projectIndex === -1) {
+      throw new Error(`Project with ID ${projectId} not found`)
+    }
+
+    // Update the archived status
+    rawProjects[projectIndex].archived = archived
+
+    // Write back to file
+    await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8")
+
+    // Update cache if it exists
+    if (this.cachedProjects) {
+      const cachedProjectIndex = this.cachedProjects.findIndex(p => p.id === projectId)
+      if (cachedProjectIndex !== -1) {
+        this.cachedProjects[cachedProjectIndex] = {
+            ...this.cachedProjects[cachedProjectIndex],
+            archived
+        }
+      }
+    }
+  }
+
+  /**
    * Clear cache (useful for development)
    */
   clearCache(): void {
     this.cachedProjects = null
+    this.idCounter.clear()
   }
 }
 
