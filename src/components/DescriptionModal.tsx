@@ -15,13 +15,16 @@ import type { ProjectWithContent } from "@/types/project"
 
 interface DescriptionModalProps {
   project: ProjectWithContent | null
+  currentCategory: string | null
   onClose: () => void
 }
 
-export function DescriptionModal({ project, onClose }: DescriptionModalProps) {
+export function DescriptionModal({ project, currentCategory, onClose }: DescriptionModalProps) {
   if (!project) return null
 
   const hasGitHub = project.github.url && project.github.commit_count > 0
+  const categoryToShow = currentCategory || project.selectedCategory
+  const resumePointsContent = project.resumePointsByCategory.get(categoryToShow) || ""
 
   return (
     <Dialog open={!!project} onOpenChange={() => onClose()}>
@@ -50,6 +53,9 @@ export function DescriptionModal({ project, onClose }: DescriptionModalProps) {
                   </Button>
                 </div>
               )}
+              <Badge variant="secondary">
+                {categoryToShow}
+              </Badge>
             </div>
           </DialogDescription>
         </DialogHeader>
@@ -57,20 +63,10 @@ export function DescriptionModal({ project, onClose }: DescriptionModalProps) {
         <ScrollArea className="max-h-[50vh] pr-4">
           <div className="prose prose-sm dark:prose-invert max-w-none">
             <div className="whitespace-pre-wrap text-sm leading-relaxed">
-              {project.descriptionContent || "No description available."}
+              {resumePointsContent || "No resume points available for this category."}
             </div>
           </div>
         </ScrollArea>
-
-        {project.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 pt-4 border-t">
-            {project.tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   )

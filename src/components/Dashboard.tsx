@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import { TopBar } from "./TopBar"
-import { TagFilterBar } from "./TagFilterBar"
+import { CategoryFilterBar } from "./CategoryFilterBar"
 import { ProjectGrid } from "./ProjectGrid"
 import { CartSidebar } from "./CartSidebar"
 import { DescriptionModal } from "./DescriptionModal"
@@ -11,7 +11,8 @@ import { WorkExperienceGrid } from "./WorkExperienceGrid"
 import { WorkExperienceCartSidebar } from "./WorkExperienceCartSidebar"
 import { useProjectSelection } from "@/hooks/useProjectSelection"
 import { useWorkExperienceSelection } from "@/hooks/useWorkExperienceSelection"
-import { useTagFilter } from "@/hooks/useTagFilter"
+import { useCategoryFilter } from "@/hooks/useCategoryFilter"
+import { useCategorySelection } from "@/hooks/useCategorySelection"
 import { useWorkExperienceTagFilter } from "@/hooks/useWorkExperienceTagFilter"
 import { useProjectNotes } from "@/hooks/useProjectNotes"
 import { useWorkExperienceNotes } from "@/hooks/useWorkExperienceNotes"
@@ -38,7 +39,8 @@ export function Dashboard({ initialProjects }: DashboardProps) {
   // Project state management
   const projectSelection = useProjectSelection()
   const projectArchiveFilter = useArchiveFilter(projects)
-  const projectFilter = useTagFilter(projectArchiveFilter.filteredProjects)
+  const projectFilter = useCategoryFilter(projectArchiveFilter.filteredProjects)
+  const categorySelection = useCategorySelection()
 
   // Initialize notes from project data
   const initialProjectNotes = useMemo(
@@ -64,6 +66,51 @@ export function Dashboard({ initialProjects }: DashboardProps) {
   // Modal state for description viewing
   const [viewingProject, setViewingProject] =
     useState<ProjectWithContent | null>(null)
+
+  // When filters change, adjust selected categories to first eligible filtered category
+  useEffect(() => {
+    if (projectFilter.hasActiveFilters) {
+      const filteredCategories = Array.from(projectFilter.selectedCategories)
+      projectFilter.filteredProjects.forEach((project) => {
+        const currentCategory = categorySelection.getCategory(project.id)
+        if (currentCategory && !filteredCategories.includes(currentCategory)) {
+          // Find the first category that this project has which is in the filtered list
+          const firstEligible = project.categories.find((c) =>
+            filteredCategories.includes(c.category_name)
+          )
+          if (firstEligible) {
+            categorySelection.setCategory(project.id, firstEligible.category_name)
+          }
+        }
+      })
+    }
+  }, [projectFilter.selectedCategories, projectFilter.filteredProjects, categorySelection, projectFilter.hasActiveFilters])
+
+  // Get the effective category for a project (handles filtering case)
+  const getEffectiveCategory = useCallback((project: ProjectWithContent): string => {
+    const selectedCategory = categorySelection.getCategory(project.id)
+    if (selectedCategory) return selectedCategory
+
+    // If filtering is active and the default category isn't filtered, use first eligible
+    if (projectFilter.hasActiveFilters) {
+      const filteredCategories = Array.from(projectFilter.selectedCategories)
+      const firstEligible = project.categories.find((c) =>
+        filteredCategories.includes(c.category_name)
+      )
+      return firstEligible?.category_name || project.selectedCategory
+    }
+
+    return project.selectedCategory
+  }, [categorySelection, projectFilter.hasActiveFilters, projectFilter.selectedCategories])
+
+  // Wrapper for ProjectGrid that handles projectId lookup
+  const getCategoryForProject = useCallback((projectId: string): string | null => {
+    const project = projects.find((p) => p.id === projectId)
+    return project ? getEffectiveCategory(project) : null
+  }, [projects, getEffectiveCategory])
+
+  // Get current category for the viewing project
+  const viewingProjectCategory = viewingProject ? getEffectiveCategory(viewingProject) : null
 
   // Handle archive toggle for projects
   const handleProjectArchiveToggle = async (projectId: string) => {
@@ -110,10 +157,10 @@ export function Dashboard({ initialProjects }: DashboardProps) {
 
       {activeTab === 'projects' ? (
         <>
-          <TagFilterBar
-            allTags={projectFilter.allTags}
-            selectedTags={projectFilter.selectedTags}
-            onToggleTag={projectFilter.toggleTag}
+          <CategoryFilterBar
+            allCategories={projectFilter.allCategories}
+            selectedCategories={projectFilter.selectedCategories}
+            onToggleCategory={projectFilter.toggleCategory}
             onClearFilters={projectFilter.clearFilters}
             onSelectAll={() =>
               projectSelection.selectAll(projectFilter.filteredProjects.map((p) => p.id))
@@ -135,6 +182,9 @@ export function Dashboard({ initialProjects }: DashboardProps) {
                 getNote={projectNotes.getNote}
                 onNoteChange={projectNotes.setNote}
                 onArchiveToggle={handleProjectArchiveToggle}
+                getCategory={getCategoryForProject}
+                onCategoryChange={categorySelection.setCategory}
+                filteredCategories={projectFilter.hasActiveFilters ? Array.from(projectFilter.selectedCategories) : undefined}
               />
             </main>
 
@@ -187,6 +237,7 @@ export function Dashboard({ initialProjects }: DashboardProps) {
 
       <DescriptionModal
         project={viewingProject}
+        currentCategory={viewingProjectCategory}
         onClose={() => setViewingProject(null)}
       />
     </div>

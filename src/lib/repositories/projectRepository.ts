@@ -3,7 +3,7 @@ import path from "path"
 import { ProjectsArraySchema, type Project } from "@/lib/schemas/project"
 import type { ProjectWithContent } from "@/types/project"
 
-const DATA_DIR = path.join(process.cwd(), "src", "data")
+const DATA_DIR = path.join(process.cwd(), "src", "data", "projects")
 
 class ProjectRepository {
   private static instance: ProjectRepository
@@ -58,16 +58,21 @@ class ProjectRepository {
       "project_descriptions",
       project.description_file
     )
-    const resumePath = path.join(
-      DATA_DIR,
-      "resume_points",
-      project.resume_points
-    )
 
-    const [descriptionContent, resumePointsContent] = await Promise.all([
-      fs.readFile(descPath, "utf-8").catch(() => ""),
-      fs.readFile(resumePath, "utf-8").catch(() => ""),
-    ])
+    const descriptionContent = await fs.readFile(descPath, "utf-8").catch(() => "")
+
+    // Load resume points for ALL categories
+    const resumePointsByCategory = new Map<string, string>()
+    for (const category of project.categories) {
+      const resumePath = path.join(
+        DATA_DIR,
+        "resume_points",
+        category.category_name,
+        category.resume_points_file
+      )
+      const content = await fs.readFile(resumePath, "utf-8").catch(() => "")
+      resumePointsByCategory.set(category.category_name, content)
+    }
 
     // Generate unique ID with collision handling
     const baseId = this.slugify(project.project_name)
@@ -75,11 +80,15 @@ class ProjectRepository {
     this.idCounter.set(baseId, count + 1)
     const uniqueId = count > 0 ? `${baseId}-${count}` : baseId
 
+    const defaultCategory = project.categories[0]?.category_name || "default"
+
     return {
       ...project,
       id: uniqueId,
       descriptionContent,
-      resumePointsContent,
+      resumePointsByCategory,
+      selectedCategory: defaultCategory,
+      resumePointsContent: resumePointsByCategory.get(defaultCategory) || "",
     }
   }
 
@@ -104,13 +113,15 @@ class ProjectRepository {
   }
 
   /**
-   * Get all unique tags from all projects
+   * Get all unique categories from all projects
    */
-  async getAllTags(): Promise<string[]> {
+  async getAllCategories(): Promise<string[]> {
     const projects = await this.getAllProjects()
-    const tagSet = new Set<string>()
-    projects.forEach((p) => p.tags.forEach((t) => tagSet.add(t)))
-    return Array.from(tagSet).sort()
+    const categorySet = new Set<string>()
+    projects.forEach((p) =>
+      p.categories.forEach((c) => categorySet.add(c.category_name))
+    )
+    return Array.from(categorySet).sort()
   }
 
   /**

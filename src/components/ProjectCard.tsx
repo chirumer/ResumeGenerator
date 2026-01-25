@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { GitCommit, ExternalLink, FileText, Github, MoreVertical, Archive, ArchiveRestore } from "lucide-react"
+import { GitCommit, ExternalLink, FileText, Github, MoreVertical, Archive, ArchiveRestore, Check, ChevronDown } from "lucide-react"
 import type { ProjectWithContent } from "@/types/project"
 import { cn } from "@/lib/utils"
 
@@ -31,6 +31,10 @@ interface ProjectCardProps {
   note: string
   onNoteChange: (note: string) => void
   onArchiveToggle: () => void
+  availableCategories: string[]
+  selectedCategory: string
+  onCategoryChange: (category: string) => void
+  filteredCategories?: string[]
 }
 
 export function ProjectCard({
@@ -42,6 +46,10 @@ export function ProjectCard({
   note,
   onNoteChange,
   onArchiveToggle,
+  availableCategories,
+  selectedCategory,
+  onCategoryChange,
+  filteredCategories,
 }: ProjectCardProps) {
   const hasGitHub = project.github.url && project.github.commit_count > 0
 
@@ -150,21 +158,33 @@ export function ProjectCard({
           onClick={onViewDescription}
         >
           <FileText className="h-4 w-4 mr-2" />
-          View Full Description
+          View Resume Points
         </Button>
       </CardContent>
 
       <CardFooter className="pt-3">
-        <div className="flex flex-wrap gap-1">
-          {project.tags.length > 0 ? (
-            project.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
-            ))
-          ) : (
-            <span className="text-xs text-muted-foreground">No tags</span>
-          )}
+        <div className="flex items-center gap-2 w-full">
+          <span className="text-xs text-muted-foreground">Category:</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex-1 justify-between">
+                {selectedCategory}
+                <ChevronDown className="h-3 w-3 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              {availableCategories.map((category) => (
+                <DropdownMenuItem
+                  key={category}
+                  onClick={() => onCategoryChange(category)}
+                  disabled={filteredCategories && !filteredCategories.includes(category)}
+                >
+                  <Check className={cn("mr-2 h-4 w-4", selectedCategory === category ? "opacity-100" : "opacity-0")} />
+                  {category}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardFooter>
     </Card>

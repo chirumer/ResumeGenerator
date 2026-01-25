@@ -2,9 +2,11 @@ import type { Project } from "@/lib/schemas/project"
 
 // Extended project with loaded content and unique ID
 export interface ProjectWithContent extends Project {
-  id: string                     // Unique identifier (slugified project_name)
-  descriptionContent: string     // Parsed markdown content from description file
-  resumePointsContent: string    // Parsed markdown content from resume_points file
+  id: string                                  // Unique identifier (slugified project_name)
+  descriptionContent: string                  // Parsed markdown content from description file
+  resumePointsByCategory: Map<string, string> // category_name -> resume points content
+  selectedCategory: string                    // Currently selected category
+  resumePointsContent: string                 // Convenience getter for selected category's resume points
 }
 
 // Selection state item (preserves order)
