@@ -25,8 +25,7 @@ export function TagFilterBar({
   totalCount,
 }: TagFilterBarProps) {
   const hasActiveFilters = selectedTags.size > 0
-  // Filter out "placeholder" tag if it's the only one or not meaningful
-  const displayTags = allTags.filter((tag) => tag !== "placeholder")
+  const displayTags = allTags
 
   return (
     <div className="flex flex-col gap-3 p-4 border-b bg-muted/30">

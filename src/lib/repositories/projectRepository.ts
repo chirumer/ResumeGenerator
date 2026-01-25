@@ -113,6 +113,44 @@ class ProjectRepository {
   }
 
   /**
+   * Update the user note for a specific project
+   */
+  async updateProjectNote(projectId: string, note: string): Promise<void> {
+    const projectsPath = path.join(DATA_DIR, "projects.json")
+    
+    // Ensure we have the latest data
+    // We intentionally don't use getAllProjects() here to avoid reading content files unnecessarily
+    // and to ensure we're working with the raw JSON structure for writing.
+    const projectsJson = await fs.readFile(projectsPath, "utf-8")
+    const rawProjects = JSON.parse(projectsJson)
+    
+    // We need to find the project. Since the raw JSON doesn't have IDs (slugs),
+    // we need to match by slugifying the project_name.
+    const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
+    
+    if (projectIndex === -1) {
+      throw new Error(`Project with ID ${projectId} not found`)
+    }
+
+    // Update the note
+    rawProjects[projectIndex].user_notes = note
+
+    // Write back to file
+    await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8")
+
+    // Update cache if it exists
+    if (this.cachedProjects) {
+      const cachedProjectIndex = this.cachedProjects.findIndex(p => p.id === projectId)
+      if (cachedProjectIndex !== -1) {
+        this.cachedProjects[cachedProjectIndex] = {
+            ...this.cachedProjects[cachedProjectIndex],
+            user_notes: note
+        }
+      }
+    }
+  }
+
+  /**
    * Clear cache (useful for development)
    */
   clearCache(): void {

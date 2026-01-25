@@ -13,6 +13,7 @@ export const ProjectSchema = z.object({
   github: GitHubSchema,
   resume_points: z.string().endsWith(".md"),
   tags: z.array(z.string()),
+  user_notes: z.string().default(""),
 })
 
 // Array of projects

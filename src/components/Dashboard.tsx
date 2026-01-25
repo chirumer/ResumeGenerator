@@ -18,7 +18,14 @@ interface DashboardProps {
 export function Dashboard({ initialProjects }: DashboardProps) {
   const selection = useProjectSelection()
   const filter = useTagFilter(initialProjects)
-  const notes = useProjectNotes()
+  
+  // Initialize notes from project data
+  const initialNotes = new Map(
+    initialProjects
+      .filter((p) => p.user_notes && p.user_notes.trim() !== "")
+      .map((p) => [p.id, p.user_notes])
+  )
+  const notes = useProjectNotes(initialNotes)
 
   // Modal state for description viewing
   const [viewingProject, setViewingProject] =
