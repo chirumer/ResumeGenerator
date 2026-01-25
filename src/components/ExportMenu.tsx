@@ -15,13 +15,15 @@ import { getAllGenerators, type ExportFormat } from "@/services/resumeGenerator"
 
 interface ExportMenuProps {
   selectedCount: number
-  orderedSelectedIds: string[]
+  orderedSelectedProjectIds: string[]
+  orderedSelectedWorkExperienceIds: string[]
   notes: Record<string, string>
 }
 
 export function ExportMenu({
   selectedCount,
-  orderedSelectedIds,
+  orderedSelectedProjectIds,
+  orderedSelectedWorkExperienceIds,
   notes,
 }: ExportMenuProps) {
   const [isExporting, setIsExporting] = useState(false)
@@ -37,7 +39,8 @@ export function ExportMenu({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           format,
-          projectIds: orderedSelectedIds,
+          projectIds: orderedSelectedProjectIds,
+          workExperienceIds: orderedSelectedWorkExperienceIds,
           notes,
         }),
       })
