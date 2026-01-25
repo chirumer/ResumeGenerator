@@ -11,6 +11,7 @@ interface ProjectGridProps {
   onViewDescription: (project: ProjectWithContent) => void
   getNote: (id: string) => string
   onNoteChange: (id: string, note: string) => void
+  onArchiveToggle: (id: string) => void
 }
 
 export function ProjectGrid({
@@ -21,6 +22,7 @@ export function ProjectGrid({
   onViewDescription,
   getNote,
   onNoteChange,
+  onArchiveToggle,
 }: ProjectGridProps) {
   if (projects.length === 0) {
     return (
@@ -42,6 +44,7 @@ export function ProjectGrid({
           onViewDescription={() => onViewDescription(project)}
           note={getNote(project.id)}
           onNoteChange={(note) => onNoteChange(project.id, note)}
+          onArchiveToggle={() => onArchiveToggle(project.id)}
         />
       ))}
     </div>

@@ -14,6 +14,7 @@ export const ProjectSchema = z.object({
   resume_points: z.string().endsWith(".md"),
   tags: z.array(z.string()),
   user_notes: z.string().default(""),
+  archived: z.boolean().default(false),
 })
 
 // Array of projects
