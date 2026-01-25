@@ -1,3 +1,36 @@
-projects.json
-project_descriptions/
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js
+/.next/
+/out/
+
+# Production
+/build
+
+# Misc
 .DS_Store
+*.pem
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+
+# Vercel
+.vercel
+
+# IDEs
+.vscode/
+.idea/
+
+# Project specific data (used from src/data instead)
+src/data/
