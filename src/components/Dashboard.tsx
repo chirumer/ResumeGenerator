@@ -6,6 +6,7 @@ import { CategoryFilterBar } from "./CategoryFilterBar"
 import { ProjectGrid } from "./ProjectGrid"
 import { CartSidebar } from "./CartSidebar"
 import { DescriptionModal } from "./DescriptionModal"
+import { WorkExperienceDescriptionModal } from "./WorkExperienceDescriptionModal"
 import { WorkExperienceFilterBar } from "./WorkExperienceFilterBar"
 import { WorkExperienceGrid } from "./WorkExperienceGrid"
 import { WorkExperienceCartSidebar } from "./WorkExperienceCartSidebar"
@@ -18,23 +19,25 @@ import { useProjectNotes } from "@/hooks/useProjectNotes"
 import { useWorkExperienceNotes } from "@/hooks/useWorkExperienceNotes"
 import { useArchiveFilter } from "@/hooks/useArchiveFilter"
 import { useWorkExperienceArchiveFilter } from "@/hooks/useWorkExperienceArchiveFilter"
-import { toggleProjectArchived } from "@/app/actions"
+import { useWorkExperienceCategorySelection } from "@/hooks/useWorkExperienceCategorySelection"
+import { toggleProjectArchived, toggleWorkExperienceArchived } from "@/app/actions"
 import type { ProjectWithContent } from "@/types/project"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 
 interface DashboardProps {
   initialProjects: ProjectWithContent[]
+  initialWorkExperiences: WorkExperienceWithContent[]
 }
 
-export function Dashboard({ initialProjects }: DashboardProps) {
+export function Dashboard({ initialProjects, initialWorkExperiences }: DashboardProps) {
   // Tab state
   const [activeTab, setActiveTab] = useState<'projects' | 'work-experiences'>('projects')
 
   // Local state for projects to update archive status
   const [projects, setProjects] = useState<ProjectWithContent[]>(initialProjects)
 
-  // Local state for work experiences (empty for now)
-  const [workExperiences, setWorkExperiences] = useState<WorkExperienceWithContent[]>([])
+  // Local state for work experiences
+  const [workExperiences, setWorkExperiences] = useState<WorkExperienceWithContent[]>(initialWorkExperiences)
 
   // Project state management
   const projectSelection = useProjectSelection()
@@ -58,14 +61,26 @@ export function Dashboard({ initialProjects }: DashboardProps) {
   const workExperienceSelection = useWorkExperienceSelection()
   const workExperienceArchiveFilter = useWorkExperienceArchiveFilter(workExperiences)
   const workExperienceFilter = useWorkExperienceTagFilter(workExperienceArchiveFilter.filteredWorkExperiences)
+  const workExperienceCategorySelection = useWorkExperienceCategorySelection()
 
-  // Initialize work experience notes (empty for now)
-  const initialWorkExperienceNotes = useMemo(() => new Map(), [])
+  // Initialize work experience notes from work experience data
+  const initialWorkExperienceNotes = useMemo(
+    () =>
+      new Map(
+        initialWorkExperiences
+          .filter((we) => we.user_notes && we.user_notes.trim() !== "")
+          .map((we) => [we.id, we.user_notes])
+      ),
+    [initialWorkExperiences]
+  )
   const workExperienceNotes = useWorkExperienceNotes(initialWorkExperienceNotes)
 
   // Modal state for description viewing
   const [viewingProject, setViewingProject] =
     useState<ProjectWithContent | null>(null)
+
+  const [viewingWorkExperience, setViewingWorkExperience] =
+    useState<WorkExperienceWithContent | null>(null)
 
   // When filters change, adjust selected categories to first eligible filtered category
   useEffect(() => {
@@ -112,6 +127,15 @@ export function Dashboard({ initialProjects }: DashboardProps) {
   // Get current category for the viewing project
   const viewingProjectCategory = viewingProject ? getEffectiveCategory(viewingProject) : null
 
+  // Get effective category for work experience (similar to project logic)
+  const getEffectiveWorkExperienceCategory = useCallback((workExperience: WorkExperienceWithContent): string => {
+    const selected = workExperienceCategorySelection.getCategory(workExperience.id)
+    if (selected) return selected
+    return workExperience.selectedCategory
+  }, [workExperienceCategorySelection])
+
+  const viewingWorkExperienceCategory = viewingWorkExperience ? getEffectiveWorkExperienceCategory(viewingWorkExperience) : null
+
   // Handle archive toggle for projects
   const handleProjectArchiveToggle = async (projectId: string) => {
     const project = projects.find((p) => p.id === projectId)
@@ -131,10 +155,23 @@ export function Dashboard({ initialProjects }: DashboardProps) {
     }
   }
 
-  // Handle archive toggle for work experiences (placeholder)
+  // Handle archive toggle for work experiences
   const handleWorkExperienceArchiveToggle = async (workExperienceId: string) => {
-    // Placeholder for work experience archive toggle
-    console.log("Archive toggle for work experience:", workExperienceId)
+    const workExperience = workExperiences.find((we) => we.id === workExperienceId)
+    if (workExperience) {
+      const newArchivedState = !workExperience.archived
+      await toggleWorkExperienceArchived(workExperienceId, newArchivedState)
+
+      // Optimistically update the local state
+      setWorkExperiences((prev) =>
+        prev.map((we) =>
+          we.id === workExperienceId ? { ...we, archived: newArchivedState } : we
+        )
+      )
+
+      // Switch to the appropriate filter view
+      workExperienceArchiveFilter.setArchiveFilter(newArchivedState ? "archived" : "active")
+    }
   }
 
   // Merge notes from both projects and work experiences
@@ -142,6 +179,15 @@ export function Dashboard({ initialProjects }: DashboardProps) {
     ...projectNotes.getAllNotes(),
     ...workExperienceNotes.getAllNotes(),
   }), [projectNotes, workExperienceNotes])
+
+  // Get all unique categories from work experiences
+  const allWorkExperienceCategories = useMemo(() => {
+    const categorySet = new Set<string>()
+    workExperiences.forEach((we) =>
+      we.categories.forEach((c) => categorySet.add(c.category_name))
+    )
+    return Array.from(categorySet).sort()
+  }, [workExperiences])
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -222,6 +268,10 @@ export function Dashboard({ initialProjects }: DashboardProps) {
                 getNote={workExperienceNotes.getNote}
                 onNoteChange={(id, note) => workExperienceNotes.setNote(id, note)}
                 onArchiveToggle={handleWorkExperienceArchiveToggle}
+                availableCategories={allWorkExperienceCategories}
+                selectedCategory={workExperienceCategorySelection.getCategory}
+                onCategoryChange={workExperienceCategorySelection.setCategory}
+                onViewDescription={setViewingWorkExperience}
               />
             </main>
 
@@ -239,6 +289,12 @@ export function Dashboard({ initialProjects }: DashboardProps) {
         project={viewingProject}
         currentCategory={viewingProjectCategory}
         onClose={() => setViewingProject(null)}
+      />
+
+      <WorkExperienceDescriptionModal
+        workExperience={viewingWorkExperience}
+        currentCategory={viewingWorkExperienceCategory}
+        onClose={() => setViewingWorkExperience(null)}
       />
     </div>
   )
