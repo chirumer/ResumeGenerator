@@ -7,14 +7,14 @@ import { ProjectGrid } from "./ProjectGrid"
 import { CartSidebar } from "./CartSidebar"
 import { DescriptionModal } from "./DescriptionModal"
 import { WorkExperienceDescriptionModal } from "./WorkExperienceDescriptionModal"
-import { WorkExperienceFilterBar } from "./WorkExperienceFilterBar"
+import { WorkExperienceCategoryFilterBar } from "./WorkExperienceCategoryFilterBar"
 import { WorkExperienceGrid } from "./WorkExperienceGrid"
 import { WorkExperienceCartSidebar } from "./WorkExperienceCartSidebar"
 import { useProjectSelection } from "@/hooks/useProjectSelection"
 import { useWorkExperienceSelection } from "@/hooks/useWorkExperienceSelection"
 import { useCategoryFilter } from "@/hooks/useCategoryFilter"
 import { useCategorySelection } from "@/hooks/useCategorySelection"
-import { useWorkExperienceTagFilter } from "@/hooks/useWorkExperienceTagFilter"
+import { useWorkExperienceCategoryFilter } from "@/hooks/useWorkExperienceCategoryFilter"
 import { useProjectNotes } from "@/hooks/useProjectNotes"
 import { useWorkExperienceNotes } from "@/hooks/useWorkExperienceNotes"
 import { useArchiveFilter } from "@/hooks/useArchiveFilter"
@@ -60,7 +60,7 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
   // Work experience state management
   const workExperienceSelection = useWorkExperienceSelection()
   const workExperienceArchiveFilter = useWorkExperienceArchiveFilter(workExperiences)
-  const workExperienceFilter = useWorkExperienceTagFilter(workExperienceArchiveFilter.filteredWorkExperiences)
+  const workExperienceCategoryFilter = useWorkExperienceCategoryFilter(workExperienceArchiveFilter.filteredWorkExperiences)
   const workExperienceCategorySelection = useWorkExperienceCategorySelection()
 
   // Initialize work experience notes from work experience data
@@ -101,6 +101,25 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
     }
   }, [projectFilter.selectedCategories, projectFilter.filteredProjects, categorySelection, projectFilter.hasActiveFilters])
 
+  // When filters change, adjust selected categories to first eligible filtered category for work experiences
+  useEffect(() => {
+    if (workExperienceCategoryFilter.hasActiveFilters) {
+      const filteredCategories = Array.from(workExperienceCategoryFilter.selectedCategories)
+      workExperienceCategoryFilter.filteredWorkExperiences.forEach((we) => {
+        const currentCategory = workExperienceCategorySelection.getCategory(we.id)
+        if (currentCategory && !filteredCategories.includes(currentCategory)) {
+          // Find the first category that this work experience has which is in the filtered list
+          const firstEligible = we.categories.find((c) =>
+            filteredCategories.includes(c.category_name)
+          )
+          if (firstEligible) {
+            workExperienceCategorySelection.setCategory(we.id, firstEligible.category_name)
+          }
+        }
+      })
+    }
+  }, [workExperienceCategoryFilter.selectedCategories, workExperienceCategoryFilter.filteredWorkExperiences, workExperienceCategorySelection, workExperienceCategoryFilter.hasActiveFilters])
+
   // Get the effective category for a project (handles filtering case)
   const getEffectiveCategory = useCallback((project: ProjectWithContent): string => {
     const selectedCategory = categorySelection.getCategory(project.id)
@@ -131,8 +150,18 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
   const getEffectiveWorkExperienceCategory = useCallback((workExperience: WorkExperienceWithContent): string => {
     const selected = workExperienceCategorySelection.getCategory(workExperience.id)
     if (selected) return selected
+
+    // If filtering is active and the default category isn't filtered, use first eligible
+    if (workExperienceCategoryFilter.hasActiveFilters) {
+      const filteredCategories = Array.from(workExperienceCategoryFilter.selectedCategories)
+      const firstEligible = workExperience.categories.find((c) =>
+        filteredCategories.includes(c.category_name)
+      )
+      return firstEligible?.category_name || workExperience.selectedCategory
+    }
+
     return workExperience.selectedCategory
-  }, [workExperienceCategorySelection])
+  }, [workExperienceCategorySelection, workExperienceCategoryFilter.hasActiveFilters, workExperienceCategoryFilter.selectedCategories])
 
   const viewingWorkExperienceCategory = viewingWorkExperience ? getEffectiveWorkExperienceCategory(viewingWorkExperience) : null
 
@@ -179,15 +208,6 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
     ...projectNotes.getAllNotes(),
     ...workExperienceNotes.getAllNotes(),
   }), [projectNotes, workExperienceNotes])
-
-  // Get all unique categories from work experiences
-  const allWorkExperienceCategories = useMemo(() => {
-    const categorySet = new Set<string>()
-    workExperiences.forEach((we) =>
-      we.categories.forEach((c) => categorySet.add(c.category_name))
-    )
-    return Array.from(categorySet).sort()
-  }, [workExperiences])
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -244,15 +264,15 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
         </>
       ) : (
         <>
-          <WorkExperienceFilterBar
-            allTags={workExperienceFilter.allTags}
-            selectedTags={workExperienceFilter.selectedTags}
-            onToggleTag={workExperienceFilter.toggleTag}
-            onClearFilters={workExperienceFilter.clearFilters}
+          <WorkExperienceCategoryFilterBar
+            allCategories={workExperienceCategoryFilter.allCategories}
+            selectedCategories={workExperienceCategoryFilter.selectedCategories}
+            onToggleCategory={workExperienceCategoryFilter.toggleCategory}
+            onClearFilters={workExperienceCategoryFilter.clearFilters}
             onSelectAll={() =>
-              workExperienceSelection.selectAll(workExperienceFilter.filteredWorkExperiences.map((we) => we.id))
+              workExperienceSelection.selectAll(workExperienceCategoryFilter.filteredWorkExperiences.map((we) => we.id))
             }
-            filteredCount={workExperienceFilter.filteredWorkExperiences.length}
+            filteredCount={workExperienceCategoryFilter.filteredWorkExperiences.length}
             totalCount={workExperienceArchiveFilter.filteredWorkExperiences.length}
             archiveFilter={workExperienceArchiveFilter.archiveFilter}
             onArchiveFilterChange={workExperienceArchiveFilter.setArchiveFilter}
@@ -261,16 +281,16 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
           <div className="flex flex-1 overflow-hidden">
             <main className="flex-1 overflow-auto p-6">
               <WorkExperienceGrid
-                workExperiences={workExperienceFilter.filteredWorkExperiences}
+                workExperiences={workExperienceCategoryFilter.filteredWorkExperiences}
                 isSelected={workExperienceSelection.isSelected}
                 getSelectionOrder={workExperienceSelection.getSelectionOrder}
                 onToggle={workExperienceSelection.toggleSelection}
                 getNote={workExperienceNotes.getNote}
                 onNoteChange={(id, note) => workExperienceNotes.setNote(id, note)}
                 onArchiveToggle={handleWorkExperienceArchiveToggle}
-                availableCategories={allWorkExperienceCategories}
                 selectedCategory={workExperienceCategorySelection.getCategory}
                 onCategoryChange={workExperienceCategorySelection.setCategory}
+                filteredCategories={workExperienceCategoryFilter.hasActiveFilters ? Array.from(workExperienceCategoryFilter.selectedCategories) : undefined}
                 onViewDescription={setViewingWorkExperience}
               />
             </main>

@@ -13,7 +13,6 @@ interface WorkExperienceGridProps {
   getNote: (id: string) => string
   onNoteChange: (id: string, note: string) => void
   onArchiveToggle: (id: string) => void
-  availableCategories: string[]
   selectedCategory: (id: string) => string | null
   onCategoryChange: (id: string, category: string) => void
   filteredCategories?: string[]
@@ -28,7 +27,6 @@ export function WorkExperienceGrid({
   getNote,
   onNoteChange,
   onArchiveToggle,
-  availableCategories,
   selectedCategory,
   onCategoryChange,
   filteredCategories,
@@ -72,7 +70,7 @@ export function WorkExperienceGrid({
           note={getNote(workExperience.id)}
           onNoteChange={(note) => onNoteChange(workExperience.id, note)}
           onArchiveToggle={() => onArchiveToggle(workExperience.id)}
-          availableCategories={availableCategories}
+          availableCategories={workExperience.categories.map(c => c.category_name)}
           selectedCategory={getEffectiveCategory(workExperience)}
           onCategoryChange={(category) => onCategoryChange(workExperience.id, category)}
           filteredCategories={filteredCategories}
