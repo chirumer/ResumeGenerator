@@ -4,7 +4,7 @@ import { DisabledResumeGenerator } from "./DisabledResumeGenerator"
 
 const generators: Record<ExportFormat, IResumeGenerator> = {
   pdf: new PlaceholderResumeGenerator(),
-  gdocs: new DisabledResumeGenerator("Google Docs"),
+  gdocs: new DisabledResumeGenerator("Docs"),
   docx: new DisabledResumeGenerator("Word"),
 }
 

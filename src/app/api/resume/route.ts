@@ -8,22 +8,22 @@ import {
 const RequestSchema = z.object({
   format: z.enum(["pdf", "gdocs", "docx"]),
   projectIds: z.array(z.string()).min(1, "At least one project is required"),
-  notes: z.record(z.string()).optional(),
+  workExperienceIds: z.array(z.string()).optional(),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { format, projectIds, notes } = RequestSchema.parse(body)
+    const { format, projectIds, workExperienceIds } = RequestSchema.parse(body)
 
     const generator = getResumeGenerator(format as ExportFormat)
 
-    const validation = generator.canGenerate({ format, projectIds, notes })
+    const validation = generator.canGenerate({ format, projectIds })
     if (!validation.valid) {
       return NextResponse.json({ error: validation.reason }, { status: 400 })
     }
 
-    const result = await generator.generate({ format, projectIds, notes })
+    const result = await generator.generate({ format, projectIds })
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 500 })
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // For URL data (e.g., Google Docs link)
+    // For URL data (e.g., Docs link)
     return NextResponse.json({ url: result.data })
   } catch (error) {
     if (error instanceof z.ZodError) {

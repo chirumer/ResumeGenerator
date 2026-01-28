@@ -17,14 +17,12 @@ interface ExportMenuProps {
   selectedCount: number
   orderedSelectedProjectIds: string[]
   orderedSelectedWorkExperienceIds: string[]
-  notes: Record<string, string>
 }
 
 export function ExportMenu({
   selectedCount,
   orderedSelectedProjectIds,
   orderedSelectedWorkExperienceIds,
-  notes,
 }: ExportMenuProps) {
   const [isExporting, setIsExporting] = useState(false)
   const generators = getAllGenerators()
@@ -41,7 +39,6 @@ export function ExportMenu({
           format,
           projectIds: orderedSelectedProjectIds,
           workExperienceIds: orderedSelectedWorkExperienceIds,
-          notes,
         }),
       })
 
@@ -104,11 +101,6 @@ export function ExportMenu({
           >
             {getIcon(format)}
             {generator.formatName}
-            {!generator.isEnabled && (
-              <span className="ml-auto text-xs text-muted-foreground">
-                Coming soon
-              </span>
-            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

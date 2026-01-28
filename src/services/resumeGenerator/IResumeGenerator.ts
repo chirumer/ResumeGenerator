@@ -3,7 +3,6 @@ export type ExportFormat = "pdf" | "gdocs" | "docx"
 export interface ResumeGeneratorOptions {
   format: ExportFormat
   projectIds: string[] // Ordered list of project IDs
-  notes?: Record<string, string> // Optional user notes per project
 }
 
 export interface ResumeGeneratorResult {

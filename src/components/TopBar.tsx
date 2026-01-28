@@ -12,7 +12,6 @@ interface TopBarProps {
   onTabChange: (tab: 'projects' | 'work-experiences') => void
   orderedSelectedProjectIds: string[]
   orderedSelectedWorkExperienceIds: string[]
-  notes: Record<string, string>
 }
 
 export function TopBar({
@@ -22,7 +21,6 @@ export function TopBar({
   onTabChange,
   orderedSelectedProjectIds,
   orderedSelectedWorkExperienceIds,
-  notes,
 }: TopBarProps) {
   const totalSelected = projectSelectedCount + workExperienceSelectedCount
 
@@ -82,7 +80,6 @@ export function TopBar({
             selectedCount={totalSelected}
             orderedSelectedProjectIds={orderedSelectedProjectIds}
             orderedSelectedWorkExperienceIds={orderedSelectedWorkExperienceIds}
-            notes={notes}
           />
         </div>
       </div>

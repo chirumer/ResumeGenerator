@@ -218,7 +218,6 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
         onTabChange={setActiveTab}
         orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
         orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
-        notes={allNotes}
       />
 
       {activeTab === 'projects' ? (
