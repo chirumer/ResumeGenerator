@@ -34,3 +34,6 @@ yarn-error.log*
 
 # Project specific data (used from src/data instead)
 src/data/
+
+# TypeScript incremental compilation
+*.tsbuildinfo

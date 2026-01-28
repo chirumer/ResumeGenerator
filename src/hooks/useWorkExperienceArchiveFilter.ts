@@ -1,24 +1,19 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { useState, useMemo } from "react"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 
 export type WorkExperienceArchiveFilter = "active" | "archived"
 
-/**
- * Stub hook for work experience archive filtering.
- * Filtering is not yet implemented for work experiences.
- */
 export function useWorkExperienceArchiveFilter(workExperiences: WorkExperienceWithContent[]) {
-  const archiveFilter: WorkExperienceArchiveFilter = "active"
+  const [archiveFilter, setArchiveFilter] = useState<WorkExperienceArchiveFilter>("active")
 
-  const setArchiveFilter = useCallback((_filter: WorkExperienceArchiveFilter) => {
-    // No-op: filtering not implemented
-  }, [])
-
+  // Filter work experiences based on archived status
   const filteredWorkExperiences = useMemo(() => {
-    return workExperiences // Pass through all items without filtering
-  }, [workExperiences])
+    return workExperiences.filter((we) =>
+      archiveFilter === "active" ? !we.archived : we.archived
+    )
+  }, [workExperiences, archiveFilter])
 
   return {
     archiveFilter,
