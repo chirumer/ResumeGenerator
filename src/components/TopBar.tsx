@@ -38,21 +38,6 @@ export function TopBar({
           {/* Tab Navigation */}
           <div className="flex items-center gap-1">
             <button
-              onClick={() => onTabChange('projects')}
-              className={cn(
-                "relative px-4 py-2 text-sm font-medium transition-colors",
-                "hover:text-foreground/80",
-                activeTab === 'projects'
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              )}
-            >
-              Projects
-              {activeTab === 'projects' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
-              )}
-            </button>
-            <button
               onClick={() => onTabChange('work-experiences')}
               className={cn(
                 "relative px-4 py-2 text-sm font-medium transition-colors",
@@ -67,22 +52,37 @@ export function TopBar({
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
               )}
             </button>
+            <button
+              onClick={() => onTabChange('projects')}
+              className={cn(
+                "relative px-4 py-2 text-sm font-medium transition-colors",
+                "hover:text-foreground/80",
+                activeTab === 'projects'
+                  ? "text-foreground"
+                  : "text-muted-foreground"
+              )}
+            >
+              Projects
+              {activeTab === 'projects' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+              )}
+            </button>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
-              <span>Projects:</span>
-              <Badge variant={projectSelectedCount > 0 ? 'default' : 'secondary'}>
-                {projectSelectedCount}
+              <span>Work:</span>
+              <Badge variant={workExperienceSelectedCount > 0 ? 'default' : 'secondary'}>
+                {workExperienceSelectedCount}
               </Badge>
             </div>
             <div className="h-4 w-px bg-border" />
             <div className="flex items-center gap-1">
-              <span>Work:</span>
-              <Badge variant={workExperienceSelectedCount > 0 ? 'default' : 'secondary'}>
-                {workExperienceSelectedCount}
+              <span>Projects:</span>
+              <Badge variant={projectSelectedCount > 0 ? 'default' : 'secondary'}>
+                {projectSelectedCount}
               </Badge>
             </div>
           </div>
