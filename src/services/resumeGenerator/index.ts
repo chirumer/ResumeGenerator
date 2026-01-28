@@ -1,25 +1,19 @@
+// Client-safe exports - types and metadata only
 import type { IResumeGenerator, ExportFormat } from "./IResumeGenerator"
-import { PlaceholderResumeGenerator } from "./PlaceholderResumeGenerator"
-import { DisabledResumeGenerator } from "./DisabledResumeGenerator"
 
-const generators: Record<ExportFormat, IResumeGenerator> = {
-  pdf: new PlaceholderResumeGenerator(),
-  gdocs: new DisabledResumeGenerator("Google Docs"),
-  docx: new DisabledResumeGenerator("Word"),
-}
-
-export function getResumeGenerator(format: ExportFormat): IResumeGenerator {
-  return generators[format]
-}
-
+// Metadata about available generators for UI display
 export function getAllGenerators(): Array<{
   format: ExportFormat
-  generator: IResumeGenerator
+  generator: {
+    formatName: string
+    isEnabled: boolean
+  }
 }> {
-  return Object.entries(generators).map(([format, generator]) => ({
-    format: format as ExportFormat,
-    generator,
-  }))
+  return [
+    { format: "pdf", generator: { formatName: "PDF", isEnabled: true } },
+    { format: "gdocs", generator: { formatName: "Google Docs", isEnabled: false } },
+    { format: "docx", generator: { formatName: "Word", isEnabled: false } },
+  ]
 }
 
 export * from "./IResumeGenerator"

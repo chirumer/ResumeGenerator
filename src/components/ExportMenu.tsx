@@ -16,15 +16,17 @@ import { getAllGenerators, type ExportFormat } from "@/services/resumeGenerator"
 interface ExportMenuProps {
   selectedCount: number
   orderedSelectedProjectIds: string[]
+  orderedSelectedProjectCategories: string[]
   orderedSelectedWorkExperienceIds: string[]
-  notes: Record<string, string>
+  orderedSelectedWorkExperienceCategories: string[]
 }
 
 export function ExportMenu({
   selectedCount,
   orderedSelectedProjectIds,
+  orderedSelectedProjectCategories,
   orderedSelectedWorkExperienceIds,
-  notes,
+  orderedSelectedWorkExperienceCategories,
 }: ExportMenuProps) {
   const [isExporting, setIsExporting] = useState(false)
   const generators = getAllGenerators()
@@ -40,8 +42,9 @@ export function ExportMenu({
         body: JSON.stringify({
           format,
           projectIds: orderedSelectedProjectIds,
+          projectCategories: orderedSelectedProjectCategories,
           workExperienceIds: orderedSelectedWorkExperienceIds,
-          notes,
+          workExperienceCategories: orderedSelectedWorkExperienceCategories,
         }),
       })
 
@@ -104,11 +107,6 @@ export function ExportMenu({
           >
             {getIcon(format)}
             {generator.formatName}
-            {!generator.isEnabled && (
-              <span className="ml-auto text-xs text-muted-foreground">
-                Coming soon
-              </span>
-            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

@@ -3,27 +3,54 @@ import { z } from "zod"
 import {
   getResumeGenerator,
   type ExportFormat,
-} from "@/services/resumeGenerator"
+} from "@/services/resumeGenerator/server-only"
 
 const RequestSchema = z.object({
   format: z.enum(["pdf", "gdocs", "docx"]),
-  projectIds: z.array(z.string()).min(1, "At least one project is required"),
-  notes: z.record(z.string()).optional(),
-})
+  projectIds: z.array(z.string()).optional(),
+  projectCategories: z.array(z.string()).optional(),
+  workExperienceIds: z.array(z.string()).optional(),
+  workExperienceCategories: z.array(z.string()).optional(),
+}).refine(
+  (data) =>
+    (data.projectIds && data.projectIds.length > 0) ||
+    (data.workExperienceIds && data.workExperienceIds.length > 0),
+  {
+    message: "At least one project or work experience must be selected",
+  }
+)
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { format, projectIds, notes } = RequestSchema.parse(body)
+    const {
+      format,
+      projectIds,
+      projectCategories,
+      workExperienceIds,
+      workExperienceCategories,
+    } = RequestSchema.parse(body)
 
     const generator = getResumeGenerator(format as ExportFormat)
 
-    const validation = generator.canGenerate({ format, projectIds, notes })
+    const validation = generator.canGenerate({
+      format,
+      projectIds: projectIds || [],
+      projectCategories: projectCategories || [],
+      workExperienceIds: workExperienceIds || [],
+      workExperienceCategories: workExperienceCategories || [],
+    })
     if (!validation.valid) {
       return NextResponse.json({ error: validation.reason }, { status: 400 })
     }
 
-    const result = await generator.generate({ format, projectIds, notes })
+    const result = await generator.generate({
+      format,
+      projectIds: projectIds || [],
+      projectCategories: projectCategories || [],
+      workExperienceIds: workExperienceIds || [],
+      workExperienceCategories: workExperienceCategories || [],
+    })
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 500 })
@@ -40,7 +67,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // For URL data (e.g., Google Docs link)
+    // For URL data (e.g., Docs link)
     return NextResponse.json({ url: result.data })
   } catch (error) {
     if (error instanceof z.ZodError) {

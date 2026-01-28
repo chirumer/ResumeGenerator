@@ -11,6 +11,7 @@ export const WorkExperienceSchema = z.object({
   id: z.string().min(1),
   company: z.string().min(1),
   role: z.string().min(1),
+  location: z.string().optional(),
   startDate: z.string(), // ISO date string
   endDate: z.string().nullable().default(null),
   description_file: z.string().endsWith(".md"),

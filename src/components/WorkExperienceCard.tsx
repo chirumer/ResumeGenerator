@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
-import { Archive, ArchiveRestore, Calendar, Building2, ChevronDown, FileText, MoreVertical, Check } from "lucide-react"
+import { Archive, ArchiveRestore, Calendar, Building2, ChevronDown, FileText, MoreVertical, Check, MapPin } from "lucide-react"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 import { cn } from "@/lib/utils"
 
@@ -108,6 +108,14 @@ export function WorkExperienceCard({
           <Calendar className="h-3.5 w-3.5" />
           <span>{dateRange}</span>
         </div>
+
+        {/* Location */}
+        {workExperience.location && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5" />
+            <span>{workExperience.location}</span>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="flex-1 space-y-4">

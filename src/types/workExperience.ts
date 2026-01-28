@@ -7,6 +7,7 @@ export interface WorkExperience {
   id: string
   company: string
   role: string
+  location?: string
   startDate: string // ISO date string
   endDate?: string | null // optional, null if current role
   description_file: string
