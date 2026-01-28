@@ -3,6 +3,9 @@ export type ExportFormat = "pdf" | "gdocs" | "docx"
 export interface ResumeGeneratorOptions {
   format: ExportFormat
   projectIds: string[] // Ordered list of project IDs
+  projectCategories: string[] // Selected category for each project
+  workExperienceIds: string[] // Ordered list of work experience IDs
+  workExperienceCategories: string[] // Selected category for each work experience
 }
 
 export interface ResumeGeneratorResult {

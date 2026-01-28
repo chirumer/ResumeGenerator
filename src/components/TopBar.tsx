@@ -11,7 +11,9 @@ interface TopBarProps {
   activeTab: 'projects' | 'work-experiences'
   onTabChange: (tab: 'projects' | 'work-experiences') => void
   orderedSelectedProjectIds: string[]
+  orderedSelectedProjectCategories: string[]
   orderedSelectedWorkExperienceIds: string[]
+  orderedSelectedWorkExperienceCategories: string[]
 }
 
 export function TopBar({
@@ -20,7 +22,9 @@ export function TopBar({
   activeTab,
   onTabChange,
   orderedSelectedProjectIds,
+  orderedSelectedProjectCategories,
   orderedSelectedWorkExperienceIds,
+  orderedSelectedWorkExperienceCategories,
 }: TopBarProps) {
   const totalSelected = projectSelectedCount + workExperienceSelectedCount
 
@@ -79,7 +83,9 @@ export function TopBar({
           <ExportMenu
             selectedCount={totalSelected}
             orderedSelectedProjectIds={orderedSelectedProjectIds}
+            orderedSelectedProjectCategories={orderedSelectedProjectCategories}
             orderedSelectedWorkExperienceIds={orderedSelectedWorkExperienceIds}
+            orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
           />
         </div>
       </div>

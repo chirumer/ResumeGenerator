@@ -209,6 +209,22 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
     ...workExperienceNotes.getAllNotes(),
   }), [projectNotes, workExperienceNotes])
 
+  // Get categories for selected projects (in order)
+  const orderedSelectedProjectCategories = useMemo(() => {
+    return projectSelection.orderedSelectedIds.map((id) => {
+      const project = projects.find((p) => p.id === id)
+      return project ? getEffectiveCategory(project) : projectFilter.allCategories[0] || ""
+    })
+  }, [projectSelection.orderedSelectedIds, projects, getEffectiveCategory, projectFilter.allCategories])
+
+  // Get categories for selected work experiences (in order)
+  const orderedSelectedWorkExperienceCategories = useMemo(() => {
+    return workExperienceSelection.orderedSelectedIds.map((id) => {
+      const workExperience = workExperiences.find((we) => we.id === id)
+      return workExperience ? getEffectiveWorkExperienceCategory(workExperience) : workExperienceCategoryFilter.allCategories[0] || ""
+    })
+  }, [workExperienceSelection.orderedSelectedIds, workExperiences, getEffectiveWorkExperienceCategory, workExperienceCategoryFilter.allCategories])
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <TopBar
@@ -217,7 +233,9 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
         activeTab={activeTab}
         onTabChange={setActiveTab}
         orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+        orderedSelectedProjectCategories={orderedSelectedProjectCategories}
         orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+        orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
       />
 
       {activeTab === 'projects' ? (
