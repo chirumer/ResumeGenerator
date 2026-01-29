@@ -1,8 +1,10 @@
 import { z } from "zod"
 
-// GitHub sub-schema
+// GitHub sub-schema - url can be empty or a valid URL
 export const GitHubSchema = z.object({
-  url: z.string().url(),
+  url: z.string().refine((val) => val === "" || /^https?:\/\//.test(val), {
+    message: "URL must be empty or a valid http/https URL",
+  }),
   commit_count: z.number().int().nonnegative(),
 })
 

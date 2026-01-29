@@ -9,6 +9,7 @@ import { DescriptionModal } from "./DescriptionModal"
 import { WorkExperienceDescriptionModal } from "./WorkExperienceDescriptionModal"
 import { WorkExperienceCategoryFilterBar } from "./WorkExperienceCategoryFilterBar"
 import { WorkExperienceGrid } from "./WorkExperienceGrid"
+import { EntryFormModal } from "./EntryFormModal"
 import { useProjectSelection } from "@/hooks/useProjectSelection"
 import { useWorkExperienceSelection } from "@/hooks/useWorkExperienceSelection"
 import { useCategoryFilter } from "@/hooks/useCategoryFilter"
@@ -80,6 +81,12 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
 
   const [viewingWorkExperience, setViewingWorkExperience] =
     useState<WorkExperienceWithContent | null>(null)
+
+  // Modal state for entry creation/editing
+  const [entryModalOpen, setEntryModalOpen] = useState(false)
+  const [entryModalMode, setEntryModalMode] = useState<"create" | "edit">("create")
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null)
+  const [editingEntrySection, setEditingEntrySection] = useState<"projects" | "work-experiences">("projects")
 
   // When filters change, adjust selected categories to first eligible filtered category
   useEffect(() => {
@@ -202,6 +209,118 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
     }
   }
 
+  // Handle opening the add entry modal
+  const handleAddEntry = useCallback((section: "projects" | "work-experiences") => {
+    setEditingEntrySection(section)
+    setEntryModalMode("create")
+    setEditingEntryId(null)
+    setEntryModalOpen(true)
+  }, [])
+
+  // Handle opening the edit entry modal
+  const handleEditEntry = useCallback((section: "projects" | "work-experiences", entryId: string) => {
+    setEditingEntrySection(section)
+    setEntryModalMode("edit")
+    setEditingEntryId(entryId)
+    setEntryModalOpen(true)
+  }, [])
+
+  // Handle saving an entry (create or update)
+  const handleSaveEntry = useCallback(async (data: any) => {
+    const section = editingEntrySection
+    const operation = entryModalMode === "create" ? "create" : "update"
+
+    const response = await fetch("/api/entries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        section,
+        operation,
+        entryId: editingEntryId,
+        data,
+      }),
+    })
+
+    if (!response.ok) {
+      const result = await response.json()
+      throw new Error(result.error || "Failed to save entry")
+    }
+
+    const result = await response.json()
+
+    // Refresh the data by reloading the page
+    // This is the simplest way to ensure all data is in sync
+    window.location.reload()
+  }, [editingEntrySection, entryModalMode, editingEntryId])
+
+  // Handle deleting an entry
+  const handleDeleteEntry = useCallback(async (section: "projects" | "work-experiences", entryId: string) => {
+    if (!confirm("Are you sure you want to delete this entry? This action cannot be undone.")) {
+      return
+    }
+
+    const response = await fetch("/api/entries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        section,
+        operation: "delete",
+        entryId,
+      }),
+    })
+
+    if (!response.ok) {
+      const result = await response.json()
+      throw new Error(result.error || "Failed to delete entry")
+    }
+
+    // Refresh the data by reloading the page
+    window.location.reload()
+  }, [])
+
+  // Get initial data for editing an entry
+  const getEditInitialData = useCallback((
+    section: "projects" | "work-experiences",
+    entryId: string
+  ) => {
+    if (section === "projects") {
+      const project = projects.find((p) => p.id === entryId)
+      if (!project) return undefined
+
+      return {
+        project_name: project.project_name,
+        description: project.descriptionContent || "",
+        github_url: project.github.url,
+        github_commit_count: project.github.commit_count.toString(),
+        categories: project.categories.map((c) => ({
+          category_name: c.category_name,
+          resume_points: project.resumePointsByCategory.get(c.category_name) || "",
+        })),
+      }
+    } else {
+      const workExperience = workExperiences.find((we) => we.id === entryId)
+      if (!workExperience) return undefined
+
+      return {
+        company: workExperience.company,
+        role: workExperience.role,
+        location: workExperience.location || "",
+        startDate: workExperience.startDate,
+        endDate: workExperience.endDate || "",
+        description: workExperience.descriptionContent || "",
+        categories: workExperience.categories.map((c) => ({
+          category_name: c.category_name,
+          resume_points: workExperience.resumePointsByCategory.get(c.category_name) || "",
+        })),
+        tags: workExperience.tags.join(", "),
+      }
+    }
+  }, [projects, workExperiences])
+
+  const entryModalInitialData = editingEntryId && entryModalMode === "edit"
+    ? getEditInitialData(editingEntrySection, editingEntryId)
+    : undefined
+
   // Merge notes from both projects and work experiences
   const allNotes = useMemo(() => ({
     ...projectNotes.getAllNotes(),
@@ -264,9 +383,13 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
                 getNote={projectNotes.getNote}
                 onNoteChange={projectNotes.setNote}
                 onArchiveToggle={handleProjectArchiveToggle}
+                onEdit={(id) => handleEditEntry("projects", id)}
+                onDelete={(id) => handleDeleteEntry("projects", id)}
+                onAddEntry={() => handleAddEntry("projects")}
                 getCategory={getCategoryForProject}
                 onCategoryChange={categorySelection.setCategory}
                 filteredCategories={projectFilter.hasActiveFilters ? Array.from(projectFilter.selectedCategories) : undefined}
+                showAddCard={projectArchiveFilter.archiveFilter !== "archived"}
               />
             </main>
 
@@ -310,10 +433,14 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
                 getNote={workExperienceNotes.getNote}
                 onNoteChange={(id, note) => workExperienceNotes.setNote(id, note)}
                 onArchiveToggle={handleWorkExperienceArchiveToggle}
+                onEdit={(id) => handleEditEntry("work-experiences", id)}
+                onDelete={(id) => handleDeleteEntry("work-experiences", id)}
+                onAddEntry={() => handleAddEntry("work-experiences")}
                 selectedCategory={workExperienceCategorySelection.getCategory}
                 onCategoryChange={workExperienceCategorySelection.setCategory}
                 filteredCategories={workExperienceCategoryFilter.hasActiveFilters ? Array.from(workExperienceCategoryFilter.selectedCategories) : undefined}
                 onViewDescription={setViewingWorkExperience}
+                showAddCard={workExperienceArchiveFilter.archiveFilter !== "archived"}
               />
             </main>
 
@@ -343,6 +470,15 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
         workExperience={viewingWorkExperience}
         currentCategory={viewingWorkExperienceCategory}
         onClose={() => setViewingWorkExperience(null)}
+      />
+
+      <EntryFormModal
+        open={entryModalOpen}
+        onOpenChange={setEntryModalOpen}
+        section={editingEntrySection}
+        mode={entryModalMode}
+        initialData={entryModalInitialData}
+        onSave={handleSaveEntry}
       />
     </div>
   )

@@ -3,6 +3,7 @@
 import { useMemo, useCallback } from "react"
 import { Briefcase } from "lucide-react"
 import { WorkExperienceCard } from "./WorkExperienceCard"
+import { AddEntryCard } from "./AddEntryCard"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 
 interface WorkExperienceGridProps {
@@ -13,10 +14,14 @@ interface WorkExperienceGridProps {
   getNote: (id: string) => string
   onNoteChange: (id: string, note: string) => void
   onArchiveToggle: (id: string) => void
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
+  onAddEntry: () => void
   selectedCategory: (id: string) => string | null
   onCategoryChange: (id: string, category: string) => void
   filteredCategories?: string[]
   onViewDescription: (workExperience: WorkExperienceWithContent) => void
+  showAddCard?: boolean
 }
 
 export function WorkExperienceGrid({
@@ -27,10 +32,14 @@ export function WorkExperienceGrid({
   getNote,
   onNoteChange,
   onArchiveToggle,
+  onEdit,
+  onDelete,
+  onAddEntry,
   selectedCategory,
   onCategoryChange,
   filteredCategories,
   onViewDescription,
+  showAddCard = false,
 }: WorkExperienceGridProps) {
   // Get effective category for a work experience (similar to project logic)
   const getEffectiveCategory = useCallback((workExperience: WorkExperienceWithContent): string => {
@@ -60,6 +69,9 @@ export function WorkExperienceGrid({
 
   return (
     <div className="flex flex-wrap justify-center gap-4">
+      {showAddCard && (
+        <AddEntryCard section="work-experiences" onClick={onAddEntry} />
+      )}
       {workExperiences.map((workExperience) => (
         <WorkExperienceCard
           key={workExperience.id}
@@ -70,6 +82,8 @@ export function WorkExperienceGrid({
           note={getNote(workExperience.id)}
           onNoteChange={(note) => onNoteChange(workExperience.id, note)}
           onArchiveToggle={() => onArchiveToggle(workExperience.id)}
+          onEdit={() => onEdit(workExperience.id)}
+          onDelete={() => onDelete(workExperience.id)}
           availableCategories={workExperience.categories.map(c => c.category_name)}
           selectedCategory={getEffectiveCategory(workExperience)}
           onCategoryChange={(category) => onCategoryChange(workExperience.id, category)}
