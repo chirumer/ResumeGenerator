@@ -22,8 +22,13 @@ npm-debug.log*
 .vscode/
 .idea/
 
-# Project specific data (used from src/data instead)
+# Project specific data (user's resume content)
+backend/data/
 src/data/
+
+# Local env files
+.env*.local
+backend/.env
 
 # TypeScript incremental compilation
 *.tsbuildinfo
