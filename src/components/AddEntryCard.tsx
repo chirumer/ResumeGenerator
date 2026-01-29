@@ -16,7 +16,7 @@ export function AddEntryCard({ section, onClick, className }: AddEntryCardProps)
   return (
     <Card
       className={cn(
-        "w-[350px] flex flex-col h-full transition-all hover:border-primary hover:bg-accent/50 border-2 border-dashed cursor-pointer",
+        "w-[350px] flex flex-col h-[410px] transition-all hover:border-primary hover:bg-accent/50 border-2 border-dashed cursor-pointer",
         className
       )}
       onClick={onClick}

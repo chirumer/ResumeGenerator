@@ -59,7 +59,7 @@ export function WorkExperienceCard({
   return (
     <Card
       className={cn(
-        "w-[350px] flex flex-col h-full transition-all",
+        "w-[350px] flex flex-col h-[410px] transition-all",
         isSelected && "ring-2 ring-primary"
       )}
     >
