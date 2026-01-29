@@ -312,7 +312,6 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
           category_name: c.category_name,
           resume_points: workExperience.resumePointsByCategory.get(c.category_name) || "",
         })),
-        tags: workExperience.tags.join(", "),
       }
     }
   }, [projects, workExperiences])

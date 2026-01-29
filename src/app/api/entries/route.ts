@@ -41,7 +41,6 @@ const WorkExperienceDataSchema = z.object({
   endDate: z.string().nullable().optional(),
   description: z.string(),
   categories: z.array(CategoryInputSchema).min(1, "At least one category is required"),
-  tags: z.array(z.string()).default([]),
 })
 
 const EntriesRequestSchema = z.object({

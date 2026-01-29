@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Plus, Trash2, Calendar, MapPin, Tag, Github } from "lucide-react"
+import { Plus, Trash2, Calendar, MapPin, Github } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // Types for form data
@@ -39,7 +39,6 @@ interface WorkExperienceFormData {
   endDate: string
   description: string
   categories: CategoryInput[]
-  tags: string
 }
 
 interface EntryFormModalProps {
@@ -81,7 +80,6 @@ export function EntryFormModal({
     endDate: "",
     description: "",
     categories: [{ category_name: "", resume_points: "" }],
-    tags: "",
   })
 
   // Initialize with data when editing
@@ -106,7 +104,6 @@ export function EntryFormModal({
           endDate: data.endDate || "",
           description: data.description,
           categories: data.categories.length > 0 ? data.categories : [{ category_name: "", resume_points: "" }],
-          tags: data.tags || "",
         })
       }
       setStep("form")
@@ -127,7 +124,6 @@ export function EntryFormModal({
         endDate: "",
         description: "",
         categories: [{ category_name: "", resume_points: "" }],
-        tags: "",
       })
       setStep("form")
     }
@@ -175,6 +171,10 @@ export function EntryFormModal({
         setError("All categories must have a name")
         return false
       }
+      if (projectData.categories.some(c => !c.resume_points.trim())) {
+        setError("All categories must have resume points")
+        return false
+      }
     } else {
       if (!workExperienceData.company.trim()) {
         setError("Company is required")
@@ -190,6 +190,10 @@ export function EntryFormModal({
       }
       if (workExperienceData.categories.some(c => !c.category_name.trim())) {
         setError("All categories must have a name")
+        return false
+      }
+      if (workExperienceData.categories.some(c => !c.resume_points.trim())) {
+        setError("All categories must have resume points")
         return false
       }
     }
@@ -237,7 +241,6 @@ export function EntryFormModal({
           endDate: workExperienceData.endDate || null,
           description: workExperienceData.description,
           categories: workExperienceData.categories.filter(c => c.category_name.trim()),
-          tags: workExperienceData.tags.split(",").map(t => t.trim()).filter(t => t),
         }
       }
 
@@ -389,20 +392,6 @@ export function EntryFormModal({
                       />
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="tags" className="flex items-center gap-2">
-                      <Tag className="h-4 w-4" />
-                      Tags
-                    </Label>
-                    <Input
-                      id="tags"
-                      value={workExperienceData.tags}
-                      onChange={(e) => setWorkExperienceData({ ...workExperienceData, tags: e.target.value })}
-                      placeholder="frontend, react, typescript"
-                    />
-                    <p className="text-xs text-muted-foreground">Comma-separated values</p>
-                  </div>
                 </>
               )}
 
@@ -469,7 +458,7 @@ export function EntryFormModal({
                       </div>
 
                       <div className="space-y-1">
-                        <Label htmlFor={`cat-points-${index}`} className="text-xs">Resume Points</Label>
+                        <Label htmlFor={`cat-points-${index}`} className="text-xs">Resume Points <span className="text-destructive">*</span></Label>
                         <ScrollArea className="h-24 rounded-md border">
                           <Textarea
                             id={`cat-points-${index}`}
@@ -565,13 +554,6 @@ export function EntryFormModal({
                       <p className="font-medium">{workExperienceData.location || <span className="text-muted-foreground italic">Not set</span>}</p>
                     </div>
                   </div>
-
-                  {workExperienceData.tags && (
-                    <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Tags</p>
-                      <p className="font-medium">{workExperienceData.tags}</p>
-                    </div>
-                  )}
 
                   {workExperienceData.description && (
                     <div className="space-y-1">

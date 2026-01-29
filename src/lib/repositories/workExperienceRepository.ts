@@ -193,7 +193,6 @@ class WorkExperienceRepository {
     endDate: string | null
     description: string
     categories: Array<{ category_name: string; resume_points: string }>
-    tags: string[]
   }): Promise<string> {
     const experiencesPath = path.join(DATA_DIR, "work_experiences.json")
 
@@ -249,7 +248,7 @@ class WorkExperienceRepository {
       endDate: data.endDate,
       description_file: descriptionFile,
       categories: categoriesWithFiles,
-      tags: data.tags,
+      tags: [],
       user_notes: "",
       archived: false,
     }
@@ -279,7 +278,6 @@ class WorkExperienceRepository {
       endDate?: string | null
       description?: string
       categories?: Array<{ category_name: string; resume_points: string }>
-      tags?: string[]
     }
   ): Promise<void> {
     const experiencesPath = path.join(DATA_DIR, "work_experiences.json")
@@ -309,7 +307,6 @@ class WorkExperienceRepository {
     if (data.location !== undefined) experience.location = data.location
     if (data.startDate) experience.startDate = data.startDate
     if (data.endDate !== undefined) experience.endDate = data.endDate
-    if (data.tags) experience.tags = data.tags
 
     // Update categories if provided
     if (data.categories) {
