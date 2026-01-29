@@ -7,7 +7,6 @@ const DATA_DIR = path.join(__dirname, "..", "..", "data", "projects");
 class ProjectRepository {
     static instance;
     cachedProjects = null;
-    idCounter = new Map(); // Track ID collisions
     constructor() { }
     static getInstance() {
         if (!ProjectRepository.instance) {
@@ -22,8 +21,6 @@ class ProjectRepository {
         if (this.cachedProjects) {
             return this.cachedProjects;
         }
-        // Reset ID counter for consistent ID generation
-        this.idCounter.clear();
         // Read and parse projects.json
         const projectsPath = path.join(DATA_DIR, "projects.json");
         const projectsJson = await fs.readFile(projectsPath, "utf-8");
@@ -48,15 +45,9 @@ class ProjectRepository {
             const content = await fs.readFile(resumePath, "utf-8").catch(() => "");
             resumePointsByCategory.set(category.category_name, content);
         }
-        // Generate unique ID with collision handling
-        const baseId = this.slugify(project.project_name);
-        const count = this.idCounter.get(baseId) ?? 0;
-        this.idCounter.set(baseId, count + 1);
-        const uniqueId = count > 0 ? `${baseId}-${count}` : baseId;
         const defaultCategory = project.categories[0]?.category_name || "default";
         return {
             ...project,
-            id: uniqueId,
             descriptionContent,
             resumePointsByCategory,
             selectedCategory: defaultCategory,
@@ -73,6 +64,19 @@ class ProjectRepository {
             .replace(/\s+/g, "-") // spaces to hyphens
             .replace(/[^a-z0-9_-]+/g, "-") // other non-alphanumeric to hyphens
             .replace(/^-|-$/g, ""); // trim leading/trailing hyphens
+    }
+    /**
+     * Generate a unique ID for a new project (with collision handling)
+     */
+    generateUniqueId(rawProjects, projectName) {
+        const baseId = this.slugify(projectName);
+        let id = baseId;
+        let counter = 1;
+        while (rawProjects.some((p) => p.id === id)) {
+            id = `${baseId}-${counter}`;
+            counter++;
+        }
+        return id;
     }
     /**
      * Get a single project by ID
@@ -105,14 +109,11 @@ class ProjectRepository {
      */
     async updateProjectNote(projectId, note) {
         const projectsPath = path.join(DATA_DIR, "projects.json");
-        // Ensure we have the latest data
-        // We intentionally don't use getAllProjects() here to avoid reading content files unnecessarily
-        // and to ensure we're working with the raw JSON structure for writing.
+        // Read the raw JSON
         const projectsJson = await fs.readFile(projectsPath, "utf-8");
         const rawProjects = JSON.parse(projectsJson);
-        // We need to find the project. Since the raw JSON doesn't have IDs (slugs),
-        // we need to match by slugifying the project_name.
-        const projectIndex = rawProjects.findIndex((p) => this.slugify(p.project_name) === projectId);
+        // Find the project by ID
+        const projectIndex = rawProjects.findIndex((p) => p.id === projectId);
         if (projectIndex === -1) {
             throw new Error(`Project with ID ${projectId} not found`);
         }
@@ -139,8 +140,8 @@ class ProjectRepository {
         // Read the raw JSON
         const projectsJson = await fs.readFile(projectsPath, "utf-8");
         const rawProjects = JSON.parse(projectsJson);
-        // Find the project by slugified name
-        const projectIndex = rawProjects.findIndex((p) => this.slugify(p.project_name) === projectId);
+        // Find the project by ID
+        const projectIndex = rawProjects.findIndex((p) => p.id === projectId);
         if (projectIndex === -1) {
             throw new Error(`Project with ID ${projectId} not found`);
         }
@@ -167,7 +168,8 @@ class ProjectRepository {
         // Read existing projects
         const projectsJson = await fs.readFile(projectsPath, "utf-8");
         const rawProjects = JSON.parse(projectsJson);
-        // Generate slug and filenames
+        // Generate unique ID and filenames
+        const id = this.generateUniqueId(rawProjects, data.project_name);
         const slug = this.slugify(data.project_name);
         const descriptionFile = `${slug}.md`;
         // Create description file
@@ -191,6 +193,7 @@ class ProjectRepository {
         }
         // Create new project object
         const newProject = {
+            id,
             project_name: data.project_name,
             description_file: descriptionFile,
             github: data.github,
@@ -204,7 +207,7 @@ class ProjectRepository {
         await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8");
         // Clear cache to force reload
         this.clearCache();
-        return slug;
+        return id;
     }
     /**
      * Update an existing project
@@ -214,14 +217,15 @@ class ProjectRepository {
         // Read existing projects
         const projectsJson = await fs.readFile(projectsPath, "utf-8");
         const rawProjects = JSON.parse(projectsJson);
-        // Find the project by slugified name
-        const projectIndex = rawProjects.findIndex((p) => this.slugify(p.project_name) === projectId);
+        // Find the project by ID
+        const projectIndex = rawProjects.findIndex((p) => p.id === projectId);
         if (projectIndex === -1) {
             throw new Error(`Project with ID ${projectId} not found`);
         }
         const project = rawProjects[projectIndex];
         const isRenaming = data.project_name && data.project_name !== project.project_name;
-        const newSlug = isRenaming ? this.slugify(data.project_name) : projectId;
+        const oldSlug = this.slugify(project.project_name);
+        const newSlug = isRenaming ? this.slugify(data.project_name) : oldSlug;
         // Update description if provided
         if (data.description !== undefined) {
             const descDir = path.join(DATA_DIR, "project_descriptions");
@@ -250,7 +254,7 @@ class ProjectRepository {
             for (const category of data.categories) {
                 const categorySlug = this.slugify(category.category_name);
                 // For renamed projects, use new slug in filename
-                const filePrefix = isRenaming ? newSlug : projectId;
+                const filePrefix = newSlug;
                 // Try to find existing resume points file for this category
                 const existingCategory = project.categories.find((c) => this.slugify(c.category_name) === categorySlug);
                 let resumePointsFile;
@@ -290,8 +294,8 @@ class ProjectRepository {
         // Read existing projects
         const projectsJson = await fs.readFile(projectsPath, "utf-8");
         const rawProjects = JSON.parse(projectsJson);
-        // Find the project by slugified name
-        const projectIndex = rawProjects.findIndex((p) => this.slugify(p.project_name) === projectId);
+        // Find the project by ID
+        const projectIndex = rawProjects.findIndex((p) => p.id === projectId);
         if (projectIndex === -1) {
             throw new Error(`Project with ID ${projectId} not found`);
         }
@@ -326,7 +330,6 @@ class ProjectRepository {
      */
     clearCache() {
         this.cachedProjects = null;
-        this.idCounter.clear();
     }
 }
 export const projectRepository = ProjectRepository.getInstance();

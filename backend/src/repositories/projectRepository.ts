@@ -10,7 +10,6 @@ const DATA_DIR = path.join(__dirname, "..", "..", "data", "projects")
 class ProjectRepository {
   private static instance: ProjectRepository
   private cachedProjects: ProjectWithContent[] | null = null
-  private idCounter = new Map<string, number>()  // Track ID collisions
 
   private constructor() {}
 
@@ -28,9 +27,6 @@ class ProjectRepository {
     if (this.cachedProjects) {
       return this.cachedProjects
     }
-
-    // Reset ID counter for consistent ID generation
-    this.idCounter.clear()
 
     // Read and parse projects.json
     const projectsPath = path.join(DATA_DIR, "projects.json")
@@ -76,17 +72,10 @@ class ProjectRepository {
       resumePointsByCategory.set(category.category_name, content)
     }
 
-    // Generate unique ID with collision handling
-    const baseId = this.slugify(project.project_name)
-    const count = this.idCounter.get(baseId) ?? 0
-    this.idCounter.set(baseId, count + 1)
-    const uniqueId = count > 0 ? `${baseId}-${count}` : baseId
-
     const defaultCategory = project.categories[0]?.category_name || "default"
 
     return {
       ...project,
-      id: uniqueId,
       descriptionContent,
       resumePointsByCategory,
       selectedCategory: defaultCategory,
@@ -104,6 +93,20 @@ class ProjectRepository {
       .replace(/\s+/g, "-")           // spaces to hyphens
       .replace(/[^a-z0-9_-]+/g, "-")   // other non-alphanumeric to hyphens
       .replace(/^-|-$/g, "")           // trim leading/trailing hyphens
+  }
+
+  /**
+   * Generate a unique ID for a new project (with collision handling)
+   */
+  private generateUniqueId(rawProjects: any[], projectName: string): string {
+    const baseId = this.slugify(projectName)
+    let id = baseId
+    let counter = 1
+    while (rawProjects.some((p: any) => p.id === id)) {
+      id = `${baseId}-${counter}`
+      counter++
+    }
+    return id
   }
 
   /**
@@ -143,15 +146,12 @@ class ProjectRepository {
   async updateProjectNote(projectId: string, note: string): Promise<void> {
     const projectsPath = path.join(DATA_DIR, "projects.json")
 
-    // Ensure we have the latest data
-    // We intentionally don't use getAllProjects() here to avoid reading content files unnecessarily
-    // and to ensure we're working with the raw JSON structure for writing.
+    // Read the raw JSON
     const projectsJson = await fs.readFile(projectsPath, "utf-8")
     const rawProjects = JSON.parse(projectsJson)
 
-    // We need to find the project. Since the raw JSON doesn't have IDs (slugs),
-    // we need to match by slugifying the project_name.
-    const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
+    // Find the project by ID
+    const projectIndex = rawProjects.findIndex((p: any) => p.id === projectId)
 
     if (projectIndex === -1) {
       throw new Error(`Project with ID ${projectId} not found`)
@@ -185,8 +185,8 @@ class ProjectRepository {
     const projectsJson = await fs.readFile(projectsPath, "utf-8")
     const rawProjects = JSON.parse(projectsJson)
 
-    // Find the project by slugified name
-    const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
+    // Find the project by ID
+    const projectIndex = rawProjects.findIndex((p: any) => p.id === projectId)
 
     if (projectIndex === -1) {
       throw new Error(`Project with ID ${projectId} not found`)
@@ -225,7 +225,8 @@ class ProjectRepository {
     const projectsJson = await fs.readFile(projectsPath, "utf-8")
     const rawProjects = JSON.parse(projectsJson)
 
-    // Generate slug and filenames
+    // Generate unique ID and filenames
+    const id = this.generateUniqueId(rawProjects, data.project_name)
     const slug = this.slugify(data.project_name)
     const descriptionFile = `${slug}.md`
 
@@ -255,6 +256,7 @@ class ProjectRepository {
 
     // Create new project object
     const newProject = {
+      id,
       project_name: data.project_name,
       description_file: descriptionFile,
       github: data.github,
@@ -272,7 +274,7 @@ class ProjectRepository {
     // Clear cache to force reload
     this.clearCache()
 
-    return slug
+    return id
   }
 
   /**
@@ -293,8 +295,8 @@ class ProjectRepository {
     const projectsJson = await fs.readFile(projectsPath, "utf-8")
     const rawProjects = JSON.parse(projectsJson)
 
-    // Find the project by slugified name
-    const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
+    // Find the project by ID
+    const projectIndex = rawProjects.findIndex((p: any) => p.id === projectId)
 
     if (projectIndex === -1) {
       throw new Error(`Project with ID ${projectId} not found`)
@@ -302,7 +304,8 @@ class ProjectRepository {
 
     const project = rawProjects[projectIndex]
     const isRenaming = data.project_name && data.project_name !== project.project_name
-    const newSlug = isRenaming ? this.slugify(data.project_name!) : projectId
+    const oldSlug = this.slugify(project.project_name)
+    const newSlug = isRenaming ? this.slugify(data.project_name!) : oldSlug
 
     // Update description if provided
     if (data.description !== undefined) {
@@ -336,7 +339,7 @@ class ProjectRepository {
         const categorySlug = this.slugify(category.category_name)
 
         // For renamed projects, use new slug in filename
-        const filePrefix = isRenaming ? newSlug : projectId
+        const filePrefix = newSlug
 
         // Try to find existing resume points file for this category
         const existingCategory = project.categories.find(
@@ -388,8 +391,8 @@ class ProjectRepository {
     const projectsJson = await fs.readFile(projectsPath, "utf-8")
     const rawProjects = JSON.parse(projectsJson)
 
-    // Find the project by slugified name
-    const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
+    // Find the project by ID
+    const projectIndex = rawProjects.findIndex((p: any) => p.id === projectId)
 
     if (projectIndex === -1) {
       throw new Error(`Project with ID ${projectId} not found`)
@@ -438,7 +441,6 @@ class ProjectRepository {
    */
   clearCache(): void {
     this.cachedProjects = null
-    this.idCounter.clear()
   }
 }
 

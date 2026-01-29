@@ -16,6 +16,7 @@ export const CategorySchema = z.object({
 
 // Project schema matching projects.json structure
 export const ProjectSchema = z.object({
+  id: z.string().min(1),
   project_name: z.string().min(1),
   description_file: z.string().endsWith(".md"),
   github: GitHubSchema,
