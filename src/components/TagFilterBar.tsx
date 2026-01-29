@@ -2,9 +2,10 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { CheckSquare, X } from "lucide-react"
+import { CheckSquare, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { ArchiveFilter } from "@/hooks/useArchiveFilter"
+import { useEffect, useRef, useState } from "react"
 
 interface TagFilterBarProps {
   allTags: string[]
@@ -32,6 +33,41 @@ export function TagFilterBar({
   const hasActiveFilters = selectedTags.size > 0
   const displayTags = allTags
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [showLeftArrow, setShowLeftArrow] = useState(false)
+  const [showRightArrow, setShowRightArrow] = useState(false)
+
+  // Check if arrows should be shown based on scroll position
+  const checkArrowVisibility = () => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    setShowLeftArrow(container.scrollLeft > 0)
+    setShowRightArrow(container.scrollLeft < container.scrollWidth - container.clientWidth)
+  }
+
+  // Set up scroll event listener
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    // Initial check
+    checkArrowVisibility()
+
+    // Add resize observer to handle window resize
+    const resizeObserver = new ResizeObserver(() => {
+      checkArrowVisibility()
+    })
+    resizeObserver.observe(container)
+
+    container.addEventListener("scroll", checkArrowVisibility)
+
+    return () => {
+      resizeObserver.disconnect()
+      container.removeEventListener("scroll", checkArrowVisibility)
+    }
+  }, [displayTags.length])
+
   const handleArchiveFilterChange = (filter: ArchiveFilter) => {
     onArchiveFilterChange(filter)
     // Clear tag filters when switching between Active/Archived
@@ -40,13 +76,23 @@ export function TagFilterBar({
     }
   }
 
+  const handleScroll = (direction: "left" | "right") => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 200 // pixels to scroll
+      scrollContainerRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      })
+    }
+  }
+
   return (
     <div className="flex flex-col gap-3 p-4 border-b bg-muted/30">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium">Filters</span>
-          <div className="h-4 w-px bg-border" />
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <span className="text-sm font-medium shrink-0">Filters</span>
+          <div className="h-4 w-px bg-border shrink-0" />
+          <div className="flex items-center gap-2 shrink-0">
             <Badge
               variant={archiveFilter === "active" ? "default" : "outline"}
               className={cn(
@@ -68,13 +114,69 @@ export function TagFilterBar({
               Archived
             </Badge>
           </div>
+
+          {/* Tag Filters - horizontally scrollable */}
+          {displayTags.length > 0 && (
+            <>
+              <div className="h-4 w-px bg-border shrink-0" />
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                {showLeftArrow && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 shrink-0"
+                    onClick={() => handleScroll("left")}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                )}
+                <div
+                  ref={scrollContainerRef}
+                  className="flex items-center gap-2 overflow-x-auto scrollbar-hide"
+                  style={{
+                    scrollbarWidth: "none", // Firefox
+                    msOverflowStyle: "none", // IE/Edge
+                  }}
+                  onScroll={checkArrowVisibility}
+                >
+                  {displayTags.map((tag) => {
+                    const isSelected = selectedTags.has(tag)
+                    return (
+                      <Badge
+                        key={tag}
+                        variant={isSelected ? "default" : "outline"}
+                        className={cn(
+                          "cursor-pointer transition-colors shrink-0",
+                          !isSelected && "hover:bg-secondary"
+                        )}
+                        onClick={() => onToggleTag(tag)}
+                      >
+                        {tag}
+                      </Badge>
+                    )
+                  })}
+                </div>
+                {showRightArrow && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 shrink-0"
+                    onClick={() => handleScroll("right")}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+
           {hasActiveFilters && (
             <>
-              <div className="h-4 w-px bg-border" />
+              <div className="h-4 w-px bg-border shrink-0" />
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 px-2 text-xs"
+                className="h-7 px-2 text-xs shrink-0"
                 onClick={onClearFilters}
               >
                 <X className="h-3 w-3 mr-1" />
@@ -83,14 +185,14 @@ export function TagFilterBar({
             </>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">
+        <div className="flex items-center gap-3 shrink-0 ml-4">
+          <span className="text-sm text-muted-foreground whitespace-nowrap">
             Showing {filteredCount} of {totalCount} projects
           </span>
           <Button
             variant="outline"
             size="sm"
-            className="h-8"
+            className="h-8 whitespace-nowrap"
             onClick={onSelectAll}
           >
             <CheckSquare className="h-4 w-4 mr-2" />
@@ -98,32 +200,6 @@ export function TagFilterBar({
           </Button>
         </div>
       </div>
-
-      {/* Tag Filters */}
-      {displayTags.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          {displayTags.map((tag) => {
-            const isSelected = selectedTags.has(tag)
-            return (
-              <Badge
-                key={tag}
-                variant={isSelected ? "default" : "outline"}
-                className={cn(
-                  "cursor-pointer transition-colors",
-                  !isSelected && "hover:bg-secondary"
-                )}
-                onClick={() => onToggleTag(tag)}
-              >
-                {tag}
-              </Badge>
-            )
-          })}
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          No tags available for filtering.
-        </p>
-      )}
     </div>
   )
 }
