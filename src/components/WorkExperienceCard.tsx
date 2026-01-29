@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
-import { Archive, ArchiveRestore, Calendar, Building2, ChevronDown, FileText, MoreVertical, Check, MapPin } from "lucide-react"
+import { Archive, ArchiveRestore, Calendar, Building2, ChevronDown, FileText, MoreVertical, Check, MapPin, Edit, Trash2 } from "lucide-react"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +23,8 @@ interface WorkExperienceCardProps {
   note: string
   onNoteChange: (note: string) => void
   onArchiveToggle: () => void
+  onEdit: () => void
+  onDelete: () => void
   availableCategories: string[]
   selectedCategory: string
   onCategoryChange: (category: string) => void
@@ -38,6 +40,8 @@ export function WorkExperienceCard({
   note,
   onNoteChange,
   onArchiveToggle,
+  onEdit,
+  onDelete,
   availableCategories,
   selectedCategory,
   onCategoryChange,
@@ -55,7 +59,7 @@ export function WorkExperienceCard({
   return (
     <Card
       className={cn(
-        "w-[350px] flex flex-col h-full transition-all",
+        "w-[350px] flex flex-col h-[410px] transition-all",
         isSelected && "ring-2 ring-primary"
       )}
     >
@@ -85,6 +89,10 @@ export function WorkExperienceCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onEdit}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={onArchiveToggle}>
                   {workExperience.archived ? (
                     <>
@@ -98,6 +106,12 @@ export function WorkExperienceCard({
                     </>
                   )}
                 </DropdownMenuItem>
+                {workExperience.archived && (
+                  <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

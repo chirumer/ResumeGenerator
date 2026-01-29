@@ -209,6 +209,229 @@ class ProjectRepository {
   }
 
   /**
+   * Create a new project
+   */
+  async createProject(data: {
+    project_name: string
+    description: string
+    github: { url: string; commit_count: number }
+    categories: Array<{ category_name: string; resume_points: string }>
+  }): Promise<string> {
+    const projectsPath = path.join(DATA_DIR, "projects.json")
+
+    // Read existing projects
+    const projectsJson = await fs.readFile(projectsPath, "utf-8")
+    const rawProjects = JSON.parse(projectsJson)
+
+    // Generate slug and filenames
+    const slug = this.slugify(data.project_name)
+    const descriptionFile = `${slug}.md`
+
+    // Create description file
+    const descDir = path.join(DATA_DIR, "project_descriptions")
+    await fs.mkdir(descDir, { recursive: true })
+    await fs.writeFile(path.join(descDir, descriptionFile), data.description, "utf-8")
+
+    // Create resume points files for each category
+    const categoriesWithFiles = []
+    for (const category of data.categories) {
+      const categorySlug = this.slugify(category.category_name)
+      const resumePointsFile = `${slug}-${categorySlug}.md`
+
+      // Create category directory if it doesn't exist
+      const categoryDir = path.join(DATA_DIR, "resume_points", categorySlug)
+      await fs.mkdir(categoryDir, { recursive: true })
+
+      // Write resume points
+      await fs.writeFile(path.join(categoryDir, resumePointsFile), category.resume_points, "utf-8")
+
+      categoriesWithFiles.push({
+        category_name: category.category_name,
+        resume_points_file: resumePointsFile,
+      })
+    }
+
+    // Create new project object
+    const newProject = {
+      project_name: data.project_name,
+      description_file: descriptionFile,
+      github: data.github,
+      categories: categoriesWithFiles,
+      user_notes: "",
+      archived: false,
+    }
+
+    // Add to projects array
+    rawProjects.push(newProject)
+
+    // Write back to file
+    await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8")
+
+    // Clear cache to force reload
+    this.clearCache()
+
+    return slug
+  }
+
+  /**
+   * Update an existing project
+   */
+  async updateProject(
+    projectId: string,
+    data: {
+      project_name?: string
+      description?: string
+      github?: { url: string; commit_count: number }
+      categories?: Array<{ category_name: string; resume_points: string }>
+    }
+  ): Promise<void> {
+    const projectsPath = path.join(DATA_DIR, "projects.json")
+
+    // Read existing projects
+    const projectsJson = await fs.readFile(projectsPath, "utf-8")
+    const rawProjects = JSON.parse(projectsJson)
+
+    // Find the project by slugified name
+    const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
+
+    if (projectIndex === -1) {
+      throw new Error(`Project with ID ${projectId} not found`)
+    }
+
+    const project = rawProjects[projectIndex]
+    const isRenaming = data.project_name && data.project_name !== project.project_name
+    const newSlug = isRenaming ? this.slugify(data.project_name!) : projectId
+
+    // Update description if provided
+    if (data.description !== undefined) {
+      const descDir = path.join(DATA_DIR, "project_descriptions")
+      const oldDescPath = path.join(descDir, project.description_file)
+
+      // If renaming, we need to move the file
+      if (isRenaming) {
+        const newDescriptionFile = `${newSlug}.md`
+        const newDescPath = path.join(descDir, newDescriptionFile)
+        await fs.rename(oldDescPath, newDescPath).catch(async () => {
+          // If rename fails (files don't match), create new file
+          await fs.writeFile(newDescPath, data.description!, "utf-8")
+        })
+        project.description_file = newDescriptionFile
+      } else {
+        await fs.writeFile(oldDescPath, data.description!, "utf-8")
+      }
+    }
+
+    // Update GitHub if provided
+    if (data.github) {
+      project.github = data.github
+    }
+
+    // Update categories if provided
+    if (data.categories) {
+      const categoriesWithFiles = []
+
+      for (const category of data.categories) {
+        const categorySlug = this.slugify(category.category_name)
+
+        // For renamed projects, use new slug in filename
+        const filePrefix = isRenaming ? newSlug : projectId
+
+        // Try to find existing resume points file for this category
+        const existingCategory = project.categories.find(
+          (c: any) => this.slugify(c.category_name) === categorySlug
+        )
+
+        let resumePointsFile: string
+        if (existingCategory && !isRenaming) {
+          // Reuse existing file
+          resumePointsFile = existingCategory.resume_points_file
+        } else {
+          // Create new file
+          resumePointsFile = `${filePrefix}-${categorySlug}.md`
+        }
+
+        // Create/update resume points file
+        const categoryDir = path.join(DATA_DIR, "resume_points", categorySlug)
+        await fs.mkdir(categoryDir, { recursive: true })
+        await fs.writeFile(path.join(categoryDir, resumePointsFile), category.resume_points, "utf-8")
+
+        categoriesWithFiles.push({
+          category_name: category.category_name,
+          resume_points_file: resumePointsFile,
+        })
+      }
+
+      project.categories = categoriesWithFiles
+    }
+
+    // Update project name if provided
+    if (data.project_name) {
+      project.project_name = data.project_name
+    }
+
+    // Write back to file
+    await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8")
+
+    // Clear cache to force reload
+    this.clearCache()
+  }
+
+  /**
+   * Delete a project
+   */
+  async deleteProject(projectId: string): Promise<void> {
+    const projectsPath = path.join(DATA_DIR, "projects.json")
+
+    // Read existing projects
+    const projectsJson = await fs.readFile(projectsPath, "utf-8")
+    const rawProjects = JSON.parse(projectsJson)
+
+    // Find the project by slugified name
+    const projectIndex = rawProjects.findIndex((p: any) => this.slugify(p.project_name) === projectId)
+
+    if (projectIndex === -1) {
+      throw new Error(`Project with ID ${projectId} not found`)
+    }
+
+    const project = rawProjects[projectIndex]
+
+    // Delete description file
+    const descPath = path.join(DATA_DIR, "project_descriptions", project.description_file)
+    await fs.unlink(descPath).catch(() => {
+      // File might not exist, ignore error
+    })
+
+    // Delete resume points files
+    for (const category of project.categories) {
+      const categorySlug = this.slugify(category.category_name)
+      const resumePath = path.join(
+        DATA_DIR,
+        "resume_points",
+        categorySlug,
+        category.resume_points_file
+      )
+      await fs.unlink(resumePath).catch(() => {
+        // File might not exist, ignore error
+      })
+
+      // Try to remove category directory if empty
+      const categoryDir = path.join(DATA_DIR, "resume_points", categorySlug)
+      fs.rmdir(categoryDir).catch(() => {
+        // Directory not empty or doesn't exist, ignore error
+      })
+    }
+
+    // Remove project from array
+    rawProjects.splice(projectIndex, 1)
+
+    // Write back to file
+    await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8")
+
+    // Clear cache to force reload
+    this.clearCache()
+  }
+
+  /**
    * Clear cache (useful for development)
    */
   clearCache(): void {
