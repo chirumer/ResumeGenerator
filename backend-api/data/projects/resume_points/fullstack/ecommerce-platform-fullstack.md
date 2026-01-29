@@ -1,0 +1,5 @@
+- Architected and built full-stack e-commerce platform using MERN stack, processing $500K+ in transactions
+- Led 4-person development team through complete product lifecycle from concept to production launch
+- Implemented CI/CD pipeline with GitHub Actions, reducing deployment time from 2 hours to 15 minutes
+- Integrated PostgreSQL for analytics reporting and MongoDB for transactional data storage
+- Set up monitoring with Sentry and logging with Winston, maintaining 99.9% uptime

@@ -1,0 +1,5 @@
+- Built comprehensive monitoring dashboard aggregating metrics from Prometheus, logs from Elasticsearch, and traces from Jaeger
+- Implemented custom alerting with multiple notification channels including Slack, PagerDuty, and email
+- Created on-call scheduling and incident response runbooks for 24/7 operations coverage
+- Developed automated root cause analysis using ML anomaly detection on metrics
+- Reduced mean time to resolution (MTTR) from 45 minutes to 12 minutes

@@ -1,10 +1,9 @@
-import { projectRepository } from "@/lib/repositories/projectRepository"
-import { workExperienceRepository } from "@/lib/repositories/workExperienceRepository"
+import { apiClient } from "@/lib/api-client"
 import { Dashboard } from "@/components/Dashboard"
 
 export default async function HomePage() {
-  const projects = await projectRepository.getAllProjects()
-  const workExperiences = await workExperienceRepository.getAllWorkExperiences()
+  const projects = await apiClient.getProjects()
+  const workExperiences = await apiClient.getWorkExperiences()
 
   return <Dashboard initialProjects={projects} initialWorkExperiences={workExperiences} />
 }

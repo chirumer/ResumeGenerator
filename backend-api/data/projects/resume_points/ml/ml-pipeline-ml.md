@@ -1,0 +1,5 @@
+- Built end-to-end ML platform automating training, evaluation, and deployment workflows
+- Implemented hyperparameter tuning with Optuna, improving model accuracy by 15%
+- Developed A/B testing framework for model comparison in production environments
+- Integrated MLflow for experiment tracking and model versioning across 100+ experiments
+- Reduced model deployment time from 2 weeks to 2 days through automation

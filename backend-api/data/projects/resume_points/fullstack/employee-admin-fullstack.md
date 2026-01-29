@@ -1,0 +1,5 @@
+- Built comprehensive HR administration system serving 500+ employees across 3 locations
+- Implemented role-based access control with granular permissions for admins, managers, and employees
+- Created RESTful API with 40+ endpoints using Express.js and Prisma ORM
+- Integrated PostgreSQL database with complex relational schema
+- Built reporting dashboard with attendance analytics and leave management

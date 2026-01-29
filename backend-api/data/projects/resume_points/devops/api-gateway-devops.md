@@ -1,0 +1,5 @@
+- Deployed API Gateway on Kubernetes with custom Helm charts and auto-scaling policies
+- Implemented blue-green deployments with zero downtime using Kubernetes rolling updates
+- Set up Prometheus monitoring and Grafana dashboards for real-time performance metrics
+- Configured Ingress controllers with NGINX for intelligent routing and load balancing
+- Built CI/CD pipeline using GitHub Actions for automated testing and deployment

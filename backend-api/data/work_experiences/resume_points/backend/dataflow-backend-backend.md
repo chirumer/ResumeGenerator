@@ -1,0 +1,5 @@
+- Built ETL pipelines using Apache Airflow and Python, processing 5TB+ of data daily
+- Developed RESTful APIs for data ingestion and query endpoints serving analytics platform
+- Implemented data quality checks with automated alerting for anomalies
+- Optimized Python code performance reducing data processing time by 60%
+- Collaborated with data scientists to build feature pipelines for ML models

@@ -1,0 +1,5 @@
+- Built social recipe platform with 2,000+ recipes and 5,000+ registered users
+- Implemented image upload system with Cloudinary integration
+- Created recipe search with filters for cuisine, dietary restrictions, and ingredients
+- Built social features including comments, ratings, and user profiles
+- Developed meal planning calendar with shopping list generation

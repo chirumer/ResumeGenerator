@@ -1,0 +1,5 @@
+- Designed and optimized PostgreSQL schemas for high-volume data ingestion and analytics
+- Implemented database partitioning and indexing strategies for sub-second query performance
+- Built automated backup and recovery procedures ensuring 99.9% data availability
+- Created materialized views and CTEs for complex analytics queries
+- Monitored database performance and implemented tuning improvements

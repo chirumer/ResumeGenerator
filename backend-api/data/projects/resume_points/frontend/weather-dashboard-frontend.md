@@ -1,0 +1,5 @@
+- Built responsive weather dashboard consuming multiple weather APIs (OpenWeatherMap, WeatherAPI)
+- Implemented geolocation features with browser Geolocation API and fallback search
+- Created dynamic weather-themed backgrounds and animations based on conditions
+- Developed 7-day forecast view with interactive charts using Chart.js
+- Implemented local storage for favorite locations and user preferences

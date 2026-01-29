@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useRef } from "react"
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 export function useWorkExperienceNotes(initialNotes: Map<string, string> = new Map()) {
   const [notes, setNotes] = useState<Map<string, string>>(initialNotes)
   const debounceTimers = useRef<Map<string, NodeJS.Timeout>>(new Map())
@@ -26,7 +28,7 @@ export function useWorkExperienceNotes(initialNotes: Map<string, string> = new M
 
     const timer = setTimeout(async () => {
       try {
-        await fetch("/api/work-experiences/notes", {
+        await fetch(`${API_BASE}/api/work-experiences/notes`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -1,0 +1,5 @@
+- Built scalable WebSocket server handling 1,000+ concurrent connections
+- Implemented message queue system for reliable message delivery
+- Created authentication service with JWT and bcrypt password hashing
+- Designed MongoDB schema for efficient message storage and retrieval
+- Implemented presence tracking system for online/offline status

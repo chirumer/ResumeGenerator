@@ -1,0 +1,148 @@
+[
+  {
+    "id": "techcorp-senior-fullstack",
+    "company": "TechCorp Solutions",
+    "role": "Senior Full Stack Developer",
+    "location": "San Francisco, CA",
+    "startDate": "2023-06-01",
+    "endDate": null,
+    "description_file": "techcorp-senior-fullstack.md",
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "techcorp-senior-fullstack-fullstack.md"
+      },
+      {
+        "category_name": "backend",
+        "resume_points_file": "techcorp-senior-fullstack-backend.md"
+      }
+    ],
+    "tags": ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS", "Docker", "Kubernetes", "CI/CD"],
+    "archived": false,
+    "user_notes": ""
+  },
+  {
+    "id": "startupxyz-fullstack",
+    "company": "StartupXYZ Inc.",
+    "role": "Full Stack Developer",
+    "location": "Austin, TX",
+    "startDate": "2021-03-15",
+    "endDate": "2023-05-30",
+    "description_file": "startupxyz-fullstack.md",
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "startupxyz-fullstack-fullstack.md"
+      },
+      {
+        "category_name": "frontend",
+        "resume_points_file": "startupxyz-fullstack-frontend.md"
+      },
+      {
+        "category_name": "backend",
+        "resume_points_file": "startupxyz-fullstack-backend.md"
+      }
+    ],
+    "tags": ["React", "MongoDB", "Express", "Socket.io", "Redis", "GraphQL", "Stripe", "Jest"],
+    "archived": false,
+    "user_notes": ""
+  },
+  {
+    "id": "webagency-frontend",
+    "company": "WebAgency LLC",
+    "role": "Frontend Developer",
+    "location": "New York, NY",
+    "startDate": "2019-07-01",
+    "endDate": "2021-02-28",
+    "description_file": "webagency-frontend.md",
+    "categories": [
+      {
+        "category_name": "frontend",
+        "resume_points_file": "webagency-frontend-frontend.md"
+      }
+    ],
+    "tags": ["React", "Vue.js", "JavaScript", "SASS", "Webpack", "Figma", "UI/UX", "Gatsby"],
+    "archived": true,
+    "user_notes": ""
+  },
+  {
+    "id": "softwareco-junior",
+    "company": "SoftwareCo",
+    "role": "Junior Developer",
+    "location": "Chicago, IL",
+    "startDate": "2018-06-01",
+    "endDate": "2019-06-30",
+    "description_file": "softwareco-junior.md",
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "softwareco-junior-fullstack.md"
+      }
+    ],
+    "tags": ["JavaScript", "HTML", "CSS", "jQuery", "PHP", "MySQL", "Git", "Agile"],
+    "archived": false,
+    "user_notes": ""
+  },
+  {
+    "id": "fintech-innovations-fullstack",
+    "company": "FinTech Innovations",
+    "role": "Full Stack Developer",
+    "location": "Boston, MA",
+    "startDate": "2017-01-15",
+    "endDate": "2018-05-31",
+    "description_file": "fintech-innovations-fullstack.md",
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "fintech-innovations-fullstack.md"
+      }
+    ],
+    "tags": ["Java", "Spring Boot", "Angular", "Oracle", "REST APIs", "JUnit", "Jenkins"],
+    "archived": true,
+    "user_notes": ""
+  },
+  {
+    "id": "dataflow-backend",
+    "company": "DataFlow Analytics",
+    "role": "Backend Developer",
+    "location": "Remote",
+    "startDate": "2020-06-01",
+    "endDate": "2021-03-10",
+    "description_file": "dataflow-backend.md",
+    "categories": [
+      {
+        "category_name": "backend",
+        "resume_points_file": "dataflow-backend-backend.md"
+      },
+      {
+        "category_name": "database",
+        "resume_points_file": "dataflow-backend-database.md"
+      }
+    ],
+    "tags": ["Python", "Django", "PostgreSQL", "Apache Kafka", "Docker", "AWS", "Airflow"],
+    "archived": false,
+    "user_notes": ""
+  },
+  {
+    "id": "cloudscale-devops",
+    "company": "CloudScale Solutions",
+    "role": "DevOps Engineer",
+    "location": "Seattle, WA",
+    "startDate": "2024-01-01",
+    "endDate": null,
+    "description_file": "cloudscale-devops.md",
+    "categories": [
+      {
+        "category_name": "backend",
+        "resume_points_file": "cloudscale-devops-backend.md"
+      },
+      {
+        "category_name": "devops",
+        "resume_points_file": "cloudscale-devops-devops.md"
+      }
+    ],
+    "tags": ["Terraform", "Ansible", "Kubernetes", "AWS", "CI/CD", "Prometheus", "Grafana"],
+    "archived": false,
+    "user_notes": ""
+  }
+]

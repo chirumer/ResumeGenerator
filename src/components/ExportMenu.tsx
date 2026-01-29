@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -36,7 +38,7 @@ export function ExportMenu({
 
     setIsExporting(true)
     try {
-      const response = await fetch("/api/resume", {
+      const response = await fetch(`${API_BASE}/api/resume`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

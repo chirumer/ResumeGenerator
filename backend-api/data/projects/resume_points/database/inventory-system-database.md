@@ -1,0 +1,5 @@
+- Optimized PostgreSQL database handling 1M+ SKUs with sub-second query response times
+- Implemented table partitioning and indexes, reducing query execution time by 85%
+- Built custom reporting engine using window functions and materialized views
+- Designed database schema supporting multi-warehouse, multi-currency operations
+- Set up automated backups and point-in-time recovery for 99.99% data availability

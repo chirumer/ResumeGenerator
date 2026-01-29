@@ -1,0 +1,5 @@
+- Built automated security vulnerability scanner for web applications and APIs
+- Implemented detection for OWASP Top 10 vulnerabilities including SQL injection, XSS, and CSRF
+- Integrated with CI/CD pipelines for automated security testing before deployment
+- Created detailed remediation reports with code examples and severity prioritization
+- Identified and prevented 50+ potential vulnerabilities, reducing security incidents by 80%

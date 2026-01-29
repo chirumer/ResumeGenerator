@@ -1,0 +1,5 @@
+- Led infrastructure automation using Terraform for managing AWS resources across multiple environments
+- Designed Kubernetes architecture supporting auto-scaling for production workloads
+- Implemented GitOps workflows using ArgoCD for automated deployments
+- Built observability stack with Prometheus, Grafana, and the ELK stack
+- Established on-call rotation and incident response procedures reducing MTTR by 40%

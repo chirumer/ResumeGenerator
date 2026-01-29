@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useMemo, useCallback, useEffect } from "react"
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 import { TopBar } from "./TopBar"
 import { CategoryFilterBar } from "./CategoryFilterBar"
 import { ProjectGrid } from "./ProjectGrid"
@@ -230,7 +232,7 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
     const section = editingEntrySection
     const operation = entryModalMode === "create" ? "create" : "update"
 
-    const response = await fetch("/api/entries", {
+    const response = await fetch(`${API_BASE}/api/entries`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -259,7 +261,7 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
       return
     }
 
-    const response = await fetch("/api/entries", {
+    const response = await fetch(`${API_BASE}/api/entries`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

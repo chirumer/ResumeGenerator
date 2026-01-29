@@ -1,0 +1,5 @@
+- Developed real-time chat application supporting 1,000+ concurrent connections
+- Implemented WebSocket infrastructure using Node.js ws library with custom reconnection logic
+- Built message persistence layer with MongoDB, storing 5M+ messages
+- Created mobile-responsive web application using React and Context API
+- Implemented push notification system for new messages

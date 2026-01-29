@@ -1,0 +1,5 @@
+- Designed and optimized PostgreSQL database for recommendation engine feature storage and retrieval
+- Implemented efficient user-item interaction matrix using CTEs and window functions
+- Built real-time inference with Redis caching, reducing response time from 500ms to 10ms
+- Created automated data pipelines for feature extraction and model retraining
+- Optimized queries supporting personalized recommendations for 1M+ users

@@ -1,20 +1,19 @@
 "use server"
 
-import { projectRepository } from "@/lib/repositories/projectRepository"
-import { workExperienceRepository } from "@/lib/repositories/workExperienceRepository"
+import { apiClient } from "@/lib/api-client"
 
 export async function toggleProjectArchived(projectId: string, archived: boolean) {
-  await projectRepository.updateProjectArchived(projectId, archived)
+  await apiClient.toggleProjectArchived(projectId, archived)
 }
 
 export async function updateProjectNote(projectId: string, note: string) {
-  await projectRepository.updateProjectNote(projectId, note)
+  await apiClient.updateProjectNote(projectId, note)
 }
 
 export async function toggleWorkExperienceArchived(workExperienceId: string, archived: boolean) {
-  await workExperienceRepository.updateWorkExperienceArchived(workExperienceId, archived)
+  await apiClient.toggleWorkExperienceArchived(workExperienceId, archived)
 }
 
 export async function updateWorkExperienceNote(workExperienceId: string, note: string) {
-  await workExperienceRepository.updateWorkExperienceNote(workExperienceId, note)
+  await apiClient.updateWorkExperienceNote(workExperienceId, note)
 }

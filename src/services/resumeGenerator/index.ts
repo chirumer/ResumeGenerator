@@ -1,19 +1,39 @@
-// Client-safe exports - types and metadata only
-import type { IResumeGenerator, ExportFormat } from "./IResumeGenerator"
+// Minimal resume generator types for frontend
+// The actual resume generation is now handled by the backend API
 
-// Metadata about available generators for UI display
-export function getAllGenerators(): Array<{
+export type ExportFormat = "pdf" | "gdocs" | "docx"
+
+export interface GeneratorInfo {
   format: ExportFormat
   generator: {
     formatName: string
     isEnabled: boolean
   }
-}> {
-  return [
-    { format: "pdf", generator: { formatName: "PDF", isEnabled: true } },
-    { format: "gdocs", generator: { formatName: "Google Docs", isEnabled: false } },
-    { format: "docx", generator: { formatName: "Word", isEnabled: false } },
-  ]
 }
 
-export * from "./IResumeGenerator"
+// Get available generators (only PDF is enabled via backend)
+export function getAllGenerators(): GeneratorInfo[] {
+  return [
+    {
+      format: "pdf",
+      generator: {
+        formatName: "PDF",
+        isEnabled: true,
+      },
+    },
+    {
+      format: "gdocs",
+      generator: {
+        formatName: "Google Docs",
+        isEnabled: false,
+      },
+    },
+    {
+      format: "docx",
+      generator: {
+        formatName: "Word Document",
+        isEnabled: false,
+      },
+    },
+  ]
+}
