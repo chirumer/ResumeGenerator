@@ -244,7 +244,7 @@ export async function getProjectsForResume(
 
         results.push({
           name: project.project_name,
-          techStack: project.tags.join(", "),
+          techStack: project.tags?.join(", ") ?? "",
           resumePoints,
         })
       }

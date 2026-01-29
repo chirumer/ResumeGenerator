@@ -4,12 +4,11 @@ import { useState, useMemo, useCallback, useEffect } from "react"
 import { TopBar } from "./TopBar"
 import { CategoryFilterBar } from "./CategoryFilterBar"
 import { ProjectGrid } from "./ProjectGrid"
-import { CartSidebar } from "./CartSidebar"
+import { SelectionPanel } from "./SelectionPanel"
 import { DescriptionModal } from "./DescriptionModal"
 import { WorkExperienceDescriptionModal } from "./WorkExperienceDescriptionModal"
 import { WorkExperienceCategoryFilterBar } from "./WorkExperienceCategoryFilterBar"
 import { WorkExperienceGrid } from "./WorkExperienceGrid"
-import { WorkExperienceCartSidebar } from "./WorkExperienceCartSidebar"
 import { useProjectSelection } from "@/hooks/useProjectSelection"
 import { useWorkExperienceSelection } from "@/hooks/useWorkExperienceSelection"
 import { useCategoryFilter } from "@/hooks/useCategoryFilter"
@@ -271,11 +270,17 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
               />
             </main>
 
-            <CartSidebar
+            <SelectionPanel
               projects={projects}
-              orderedSelectedIds={projectSelection.orderedSelectedIds}
-              onDeselect={projectSelection.deselect}
-              onClearAll={projectSelection.clearAll}
+              orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+              onDeselectProject={projectSelection.deselect}
+              onClearAllProjects={projectSelection.clearAll}
+              onReorderProjects={projectSelection.reorder}
+              workExperiences={workExperiences}
+              orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+              onDeselectWorkExperience={workExperienceSelection.deselect}
+              onClearAllWorkExperiences={workExperienceSelection.clearAll}
+              onReorderWorkExperiences={workExperienceSelection.reorder}
             />
           </div>
         </>
@@ -312,11 +317,17 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
               />
             </main>
 
-            <WorkExperienceCartSidebar
+            <SelectionPanel
+              projects={projects}
+              orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+              onDeselectProject={projectSelection.deselect}
+              onClearAllProjects={projectSelection.clearAll}
+              onReorderProjects={projectSelection.reorder}
               workExperiences={workExperiences}
-              orderedSelectedIds={workExperienceSelection.orderedSelectedIds}
-              onDeselect={workExperienceSelection.deselect}
-              onClearAll={workExperienceSelection.clearAll}
+              orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+              onDeselectWorkExperience={workExperienceSelection.deselect}
+              onClearAllWorkExperiences={workExperienceSelection.clearAll}
+              onReorderWorkExperiences={workExperienceSelection.reorder}
             />
           </div>
         </>
