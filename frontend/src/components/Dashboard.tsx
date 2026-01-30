@@ -23,6 +23,7 @@ import { useArchiveFilter } from "@/hooks/useArchiveFilter"
 import { useWorkExperienceArchiveFilter } from "@/hooks/useWorkExperienceArchiveFilter"
 import { useWorkExperienceCategorySelection } from "@/hooks/useWorkExperienceCategorySelection"
 import { toggleProjectArchived, toggleWorkExperienceArchived } from "@/app/actions"
+import { apiClient } from "@/lib/api-client"
 import type { ProjectWithContent } from "@/types/project"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 
@@ -40,6 +41,17 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
 
   // Local state for work experiences
   const [workExperiences, setWorkExperiences] = useState<WorkExperienceWithContent[]>(initialWorkExperiences)
+
+  // Refetch functions to update data after mutations
+  const refetchProjects = useCallback(async () => {
+    const updated = await apiClient.getProjects()
+    setProjects(updated)
+  }, [])
+
+  const refetchWorkExperiences = useCallback(async () => {
+    const updated = await apiClient.getWorkExperiences()
+    setWorkExperiences(updated)
+  }, [])
 
   // Project state management
   const projectSelection = useProjectSelection()
@@ -186,9 +198,6 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
           p.id === projectId ? { ...p, archived: newArchivedState } : p
         )
       )
-
-      // Switch to the appropriate filter view
-      projectArchiveFilter.setArchiveFilter(newArchivedState ? "archived" : "active")
     }
   }
 
@@ -205,9 +214,6 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
           we.id === workExperienceId ? { ...we, archived: newArchivedState } : we
         )
       )
-
-      // Switch to the appropriate filter view
-      workExperienceArchiveFilter.setArchiveFilter(newArchivedState ? "archived" : "active")
     }
   }
 
@@ -250,10 +256,13 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
 
     const result = await response.json()
 
-    // Refresh the data by reloading the page
-    // This is the simplest way to ensure all data is in sync
-    window.location.reload()
-  }, [editingEntrySection, entryModalMode, editingEntryId])
+    // Refetch data to update the grid
+    if (section === "projects") {
+      await refetchProjects()
+    } else {
+      await refetchWorkExperiences()
+    }
+  }, [editingEntrySection, entryModalMode, editingEntryId, refetchProjects, refetchWorkExperiences])
 
   // Handle deleting an entry
   const handleDeleteEntry = useCallback(async (section: "projects" | "work-experiences", entryId: string) => {
@@ -276,9 +285,13 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
       throw new Error(result.error || "Failed to delete entry")
     }
 
-    // Refresh the data by reloading the page
-    window.location.reload()
-  }, [])
+    // Refetch data to update the grid
+    if (section === "projects") {
+      await refetchProjects()
+    } else {
+      await refetchWorkExperiences()
+    }
+  }, [refetchProjects, refetchWorkExperiences])
 
   // Get initial data for editing an entry
   const getEditInitialData = useCallback((
