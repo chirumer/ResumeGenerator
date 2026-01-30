@@ -1,0 +1,5 @@
+- Built and maintained backend services for SaaS platform serving enterprise customers
+- Implemented CI/CD pipelines reducing deployment time from 1 hour to 5 minutes
+- Developed infrastructure monitoring and alerting using Prometheus and Grafana
+- Managed cloud infrastructure spend of $50K+ monthly through optimization
+- Improved system availability from 99.5% to 99.95% through reliability improvements

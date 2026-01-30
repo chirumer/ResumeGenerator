@@ -1,0 +1,394 @@
+[
+  {
+    "project_name": "E-Commerce Platform",
+    "description_file": "ecommerce-platform.md",
+    "github": {
+      "url": "https://github.com/johndoe/ecommerce-platform",
+      "commit_count": 347
+    },
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "ecommerce-platform-fullstack.md"
+      },
+      {
+        "category_name": "frontend",
+        "resume_points_file": "ecommerce-platform-frontend.md"
+      },
+      {
+        "category_name": "backend",
+        "resume_points_file": "ecommerce-platform-backend.md"
+      },
+      {
+        "category_name": "category1",
+        "resume_points_file": "ecommerce-platform-category1.md"
+      },
+      {
+        "category_name": "category2",
+        "resume_points_file": "ecommerce-platform-category2.md"
+      },
+      {
+        "category_name": "category3",
+        "resume_points_file": "ecommerce-platform-category3.md"
+      },
+      {
+        "category_name": "category4",
+        "resume_points_file": "ecommerce-platform-category4.md"
+      },
+      {
+        "category_name": "category5",
+        "resume_points_file": "ecommerce-platform-category5.md"
+      },
+      {
+        "category_name": "category6",
+        "resume_points_file": "ecommerce-platform-category6.md"
+      },
+      {
+        "category_name": "category7",
+        "resume_points_file": "ecommerce-platform-category7.md"
+      },
+      {
+        "category_name": "category8",
+        "resume_points_file": "ecommerce-platform-category8.md"
+      },
+      {
+        "category_name": "category9",
+        "resume_points_file": "ecommerce-platform-category9.md"
+      },
+      {
+        "category_name": "category10",
+        "resume_points_file": "ecommerce-platform-category10.md"
+      },
+      {
+        "category_name": "category11",
+        "resume_points_file": "ecommerce-platform-category11.md"
+      },
+      {
+        "category_name": "category12",
+        "resume_points_file": "ecommerce-platform-category12.md"
+      },
+      {
+        "category_name": "category13",
+        "resume_points_file": "ecommerce-platform-category13.md"
+      },
+      {
+        "category_name": "category14",
+        "resume_points_file": "ecommerce-platform-category14.md"
+      },
+      {
+        "category_name": "category15",
+        "resume_points_file": "ecommerce-platform-category15.md"
+      },
+      {
+        "category_name": "category16",
+        "resume_points_file": "ecommerce-platform-category16.md"
+      },
+      {
+        "category_name": "category17",
+        "resume_points_file": "ecommerce-platform-category17.md"
+      },
+      {
+        "category_name": "category18",
+        "resume_points_file": "ecommerce-platform-category18.md"
+      },
+      {
+        "category_name": "category19",
+        "resume_points_file": "ecommerce-platform-category19.md"
+      },
+      {
+        "category_name": "category20",
+        "resume_points_file": "ecommerce-platform-category20.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": true
+  },
+  {
+    "project_name": "Task Management App",
+    "description_file": "task-management-app.md",
+    "github": {
+      "url": "https://github.com/johndoe/taskflow",
+      "commit_count": 218
+    },
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "taskflow-fullstack.md"
+      },
+      {
+        "category_name": "frontend",
+        "resume_points_file": "taskflow-frontend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Real-Time Chat App",
+    "description_file": "realtime-chat-app.md",
+    "github": {
+      "url": "https://github.com/johndoe/chatterbox",
+      "commit_count": 156
+    },
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "chatterbox-fullstack.md"
+      },
+      {
+        "category_name": "backend",
+        "resume_points_file": "chatterbox-backend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Employee Management System",
+    "description_file": "employee-management-system.md",
+    "github": {
+      "url": "https://github.com/johndoe/employee-admin",
+      "commit_count": 189
+    },
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "employee-admin-fullstack.md"
+      },
+      {
+        "category_name": "frontend",
+        "resume_points_file": "employee-admin-frontend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Weather Dashboard",
+    "description_file": "weather-dashboard.md",
+    "github": {
+      "url": "https://github.com/johndoe/weather-dashboard",
+      "commit_count": 87
+    },
+    "categories": [
+      {
+        "category_name": "frontend",
+        "resume_points_file": "weather-dashboard-frontend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Blog CMS",
+    "description_file": "blog-cms.md",
+    "github": {
+      "url": "https://github.com/johndoe/blog-cms",
+      "commit_count": 234
+    },
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "blog-cms-fullstack.md"
+      },
+      {
+        "category_name": "backend",
+        "resume_points_file": "blog-cms-backend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Recipe Sharing App",
+    "description_file": "recipe-sharing-app.md",
+    "github": {
+      "url": "https://github.com/johndoe/recipe-share",
+      "commit_count": 142
+    },
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "recipe-share-fullstack.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": true
+  },
+  {
+    "project_name": "Portfolio Generator",
+    "description_file": "portfolio-generator.md",
+    "github": {
+      "url": "https://github.com/johndoe/portfolio-gen",
+      "commit_count": 95
+    },
+    "categories": [
+      {
+        "category_name": "frontend",
+        "resume_points_file": "portfolio-gen-frontend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": true
+  },
+  {
+    "project_name": "API Gateway Service",
+    "description_file": "api-gateway-service.md",
+    "github": {
+      "url": "https://github.com/johndoe/api-gateway",
+      "commit_count": 287
+    },
+    "categories": [
+      {
+        "category_name": "backend",
+        "resume_points_file": "api-gateway-backend.md"
+      },
+      {
+        "category_name": "devops",
+        "resume_points_file": "api-gateway-devops.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "ML Pipeline Platform",
+    "description_file": "ml-pipeline-platform.md",
+    "github": {
+      "url": "https://github.com/johndoe/ml-pipeline",
+      "commit_count": 312
+    },
+    "categories": [
+      {
+        "category_name": "ml",
+        "resume_points_file": "ml-pipeline-ml.md"
+      },
+      {
+        "category_name": "backend",
+        "resume_points_file": "ml-pipeline-backend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Inventory Management System",
+    "description_file": "inventory-management-system.md",
+    "github": {
+      "url": "https://github.com/johndoe/inventory-system",
+      "commit_count": 198
+    },
+    "categories": [
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "inventory-system-fullstack.md"
+      },
+      {
+        "category_name": "database",
+        "resume_points_file": "inventory-system-database.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Fitness Tracking Mobile App",
+    "description_file": "fitness-tracking-app.md",
+    "github": {
+      "url": "https://github.com/johndoe/fitness-tracker",
+      "commit_count": 276
+    },
+    "categories": [
+      {
+        "category_name": "mobile",
+        "resume_points_file": "fitness-tracker-mobile.md"
+      },
+      {
+        "category_name": "fullstack",
+        "resume_points_file": "fitness-tracker-fullstack.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Security Audit Scanner",
+    "description_file": "security-audit-scanner.md",
+    "github": {
+      "url": "https://github.com/johndoe/security-scanner",
+      "commit_count": 164
+    },
+    "categories": [
+      {
+        "category_name": "security",
+        "resume_points_file": "security-scanner-security.md"
+      },
+      {
+        "category_name": "backend",
+        "resume_points_file": "security-scanner-backend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "DevOps Dashboard",
+    "description_file": "devops-dashboard.md",
+    "github": {
+      "url": "https://github.com/johndoe/devops-dashboard",
+      "commit_count": 203
+    },
+    "categories": [
+      {
+        "category_name": "devops",
+        "resume_points_file": "devops-dashboard-devops.md"
+      },
+      {
+        "category_name": "frontend",
+        "resume_points_file": "devops-dashboard-frontend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Recommendation Engine",
+    "description_file": "recommendation-engine.md",
+    "github": {
+      "url": "https://github.com/johndoe/recommendation-engine",
+      "commit_count": 358
+    },
+    "categories": [
+      {
+        "category_name": "ml",
+        "resume_points_file": "recommendation-engine-ml.md"
+      },
+      {
+        "category_name": "database",
+        "resume_points_file": "recommendation-engine-database.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  },
+  {
+    "project_name": "Authentication Microservice",
+    "description_file": "authentication-microservice.md",
+    "github": {
+      "url": "https://github.com/johndoe/auth-microservice",
+      "commit_count": 143
+    },
+    "categories": [
+      {
+        "category_name": "security",
+        "resume_points_file": "auth-microservice-security.md"
+      },
+      {
+        "category_name": "backend",
+        "resume_points_file": "auth-microservice-backend.md"
+      }
+    ],
+    "user_notes": "",
+    "archived": false
+  }
+]

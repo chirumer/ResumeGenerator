@@ -1,0 +1,5 @@
+- Built security scanner using Python and OWASP ZAP with custom detection rules
+- Implemented scalable scanning architecture supporting concurrent security assessments
+- Developed API for on-demand and scheduled security scans with results persistence
+- Created false positive management system and customizable scan profiles
+- Built notification system integrating with Slack, Jira, and email for alerting

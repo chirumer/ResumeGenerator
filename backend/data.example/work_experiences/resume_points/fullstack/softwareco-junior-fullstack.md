@@ -1,0 +1,5 @@
+- Built internal tools using PHP, MySQL, and JavaScript legacy stack
+- Contributed to migration of monolithic application to microservices architecture
+- Gained foundational experience in agile methodologies and version control
+- Participated in code reviews and pair programming sessions
+- Fixed bugs and maintained legacy codebase serving 100K+ users

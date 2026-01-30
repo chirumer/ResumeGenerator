@@ -1,0 +1,5 @@
+- Developed responsive websites for e-commerce, healthcare, and education clients
+- Translated Figma designs into pixel-perfect React and Vue.js components
+- Optimized site performance improving Core Web Vitals by 30%
+- Built custom WordPress themes and plugins for client CMS needs
+- Implemented responsive designs ensuring mobile-first compatibility

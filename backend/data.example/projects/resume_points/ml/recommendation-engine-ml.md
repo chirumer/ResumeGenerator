@@ -1,0 +1,5 @@
+- Built ML-powered recommendation system using collaborative filtering, content-based filtering, and hybrid approaches
+- Implemented matrix factorization with ALS and neural collaborative filtering for improved recommendations
+- Developed cold-start solutions using content-based features and demographic data
+- Achieved 35% improvement in click-through rate and 22% increase in conversion rate
+- Built A/B testing framework for algorithm comparison and performance measurement

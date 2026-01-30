@@ -1,0 +1,5 @@
+- Built SaaS products from ground up using MERN stack
+- Implemented real-time features using Socket.io increasing user engagement by 40%
+- Integrated Stripe payment processing handling $50K+ monthly transactions
+- Led migration from monolith to microservices architecture
+- Collaborated with product and design teams to ship features on 2-week sprints

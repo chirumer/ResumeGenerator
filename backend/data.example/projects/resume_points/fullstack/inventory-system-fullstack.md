@@ -1,0 +1,5 @@
+- Developed full-stack inventory management system with Django and PostgreSQL for multi-warehouse retail operations
+- Built real-time inventory tracking dashboard with WebSocket updates for 50+ warehouse locations
+- Implemented automated reorder point management, reducing stockouts by 40% and overstock costs by 35%
+- Created role-based access control system with granular permissions for 200+ users
+- Integrated barcode scanning and bulk import/export functionality, saving 20 hours/week in manual data entry

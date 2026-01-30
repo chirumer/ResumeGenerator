@@ -1,0 +1,5 @@
+- Built scalable ML platform with Python, Airflow, and Kubernetes serving 50+ data scientists
+- Implemented distributed training using Ray, reducing training time by 70%
+- Designed RESTful APIs for model inference with batch and real-time prediction support
+- Set up TensorFlow Serving and Seldon Core for production model deployment
+- Built automated retraining pipelines triggered by data drift detection

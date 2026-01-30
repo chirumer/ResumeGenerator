@@ -1,0 +1,5 @@
+- Built observability dashboard with Next.js and TypeScript for real-time infrastructure monitoring
+- Implemented real-time data visualization using D3.js and WebSockets for live metric streaming
+- Created responsive design supporting dark mode and customizable dashboard layouts
+- Built incident response UI with integrated runbook access and collaboration features
+- Optimized rendering performance for handling 10K+ metrics updates per second

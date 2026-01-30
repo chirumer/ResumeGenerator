@@ -1,0 +1,5 @@
+- Architected scalable microservices infrastructure using Node.js and Docker
+- Designed PostgreSQL database schemas handling 1M+ daily transactions
+- Implemented Redis caching layer reducing API response times by 45%
+- Built RESTful APIs serving 10M+ requests daily with 99.9% uptime
+- Configured Kubernetes cluster for auto-scaling based on traffic patterns

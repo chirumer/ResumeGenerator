@@ -1,0 +1,5 @@
+- Built headless CMS with Next.js App Router and Prisma ORM
+- Implemented ISR (Incremental Static Regeneration) for optimal page performance
+- Created rich text editor with image uploads and markdown support
+- Built authentication system with NextAuth.js supporting multiple providers
+- Generated RSS feeds and XML sitemaps automatically for SEO

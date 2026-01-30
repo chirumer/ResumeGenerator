@@ -1,0 +1,5 @@
+- Built cross-platform fitness app with React Native backend using Node.js and MongoDB
+- Developed custom workout builder, exercise library with video demonstrations, and nutrition logging
+- Implemented social features including challenges, leaderboards, and friend activities
+- Created RESTful APIs handling 100K+ daily requests with proper authentication and data validation
+- Built admin dashboard for content management and user analytics using Next.js

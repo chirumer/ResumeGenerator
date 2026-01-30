@@ -1,0 +1,335 @@
+import { promises as fs } from "fs";
+import path from "path";
+import { ProjectsArraySchema } from "@resume-generator/shared-types";
+// ESM: use import.meta.dirname instead of __dirname
+const __dirname = import.meta.dirname ?? process.cwd();
+const DATA_DIR = path.join(__dirname, "..", "..", "data", "projects");
+class ProjectRepository {
+    static instance;
+    cachedProjects = null;
+    constructor() { }
+    static getInstance() {
+        if (!ProjectRepository.instance) {
+            ProjectRepository.instance = new ProjectRepository();
+        }
+        return ProjectRepository.instance;
+    }
+    /**
+     * Get all projects with their content loaded
+     */
+    async getAllProjects() {
+        if (this.cachedProjects) {
+            return this.cachedProjects;
+        }
+        // Read and parse projects.json
+        const projectsPath = path.join(DATA_DIR, "projects.json");
+        const projectsJson = await fs.readFile(projectsPath, "utf-8");
+        const rawProjects = JSON.parse(projectsJson);
+        // Validate with Zod
+        const projects = ProjectsArraySchema.parse(rawProjects);
+        // Load content for each project in parallel
+        const projectsWithContent = await Promise.all(projects.map(async (project) => this.loadProjectContent(project)));
+        this.cachedProjects = projectsWithContent;
+        return projectsWithContent;
+    }
+    /**
+     * Load description and resume points content for a project
+     */
+    async loadProjectContent(project) {
+        const descPath = path.join(DATA_DIR, "project_descriptions", project.description_file);
+        const descriptionContent = await fs.readFile(descPath, "utf-8").catch(() => "");
+        // Load resume points for ALL categories
+        const resumePointsByCategory = new Map();
+        for (const category of project.categories) {
+            const resumePath = path.join(DATA_DIR, "resume_points", category.category_name, category.resume_points_file);
+            const content = await fs.readFile(resumePath, "utf-8").catch(() => "");
+            resumePointsByCategory.set(category.category_name, content);
+        }
+        const defaultCategory = project.categories[0]?.category_name || "default";
+        return {
+            ...project,
+            descriptionContent,
+            resumePointsByCategory,
+            selectedCategory: defaultCategory,
+            resumePointsContent: resumePointsByCategory.get(defaultCategory) || "",
+        };
+    }
+    /**
+     * Convert project name to URL-safe slug
+     * Preserves underscores to avoid collisions (e.g., "Employee-Management" vs "Employee_Management")
+     */
+    slugify(name) {
+        return name
+            .toLowerCase()
+            .replace(/\s+/g, "-") // spaces to hyphens
+            .replace(/[^a-z0-9_-]+/g, "-") // other non-alphanumeric to hyphens
+            .replace(/^-|-$/g, ""); // trim leading/trailing hyphens
+    }
+    /**
+     * Generate a unique ID for a new project (with collision handling)
+     */
+    generateUniqueId(rawProjects, projectName) {
+        const baseId = this.slugify(projectName);
+        let id = baseId;
+        let counter = 1;
+        while (rawProjects.some((p) => p.id === id)) {
+            id = `${baseId}-${counter}`;
+            counter++;
+        }
+        return id;
+    }
+    /**
+     * Get a single project by ID
+     */
+    async getProjectById(id) {
+        const projects = await this.getAllProjects();
+        return projects.find((p) => p.id === id);
+    }
+    /**
+     * Get all unique categories from all projects
+     */
+    async getAllCategories() {
+        const projects = await this.getAllProjects();
+        const categorySet = new Set();
+        projects.forEach((p) => p.categories.forEach((c) => categorySet.add(c.category_name)));
+        return Array.from(categorySet).sort();
+    }
+    /**
+     * Get projects by IDs (preserves order)
+     */
+    async getProjectsByIds(ids) {
+        const projects = await this.getAllProjects();
+        const projectMap = new Map(projects.map((p) => [p.id, p]));
+        return ids
+            .map((id) => projectMap.get(id))
+            .filter((p) => p !== undefined);
+    }
+    /**
+     * Update the user note for a specific project
+     */
+    async updateProjectNote(projectId, note) {
+        const projectsPath = path.join(DATA_DIR, "projects.json");
+        // Read the raw JSON
+        const projectsJson = await fs.readFile(projectsPath, "utf-8");
+        const rawProjects = JSON.parse(projectsJson);
+        // Find the project by ID
+        const projectIndex = rawProjects.findIndex((p) => p.id === projectId);
+        if (projectIndex === -1) {
+            throw new Error(`Project with ID ${projectId} not found`);
+        }
+        // Update the note
+        rawProjects[projectIndex].user_notes = note;
+        // Write back to file
+        await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8");
+        // Update cache if it exists
+        if (this.cachedProjects) {
+            const cachedProjectIndex = this.cachedProjects.findIndex(p => p.id === projectId);
+            if (cachedProjectIndex !== -1) {
+                this.cachedProjects[cachedProjectIndex] = {
+                    ...this.cachedProjects[cachedProjectIndex],
+                    user_notes: note
+                };
+            }
+        }
+    }
+    /**
+     * Update the archived status for a specific project
+     */
+    async updateProjectArchived(projectId, archived) {
+        const projectsPath = path.join(DATA_DIR, "projects.json");
+        // Read the raw JSON
+        const projectsJson = await fs.readFile(projectsPath, "utf-8");
+        const rawProjects = JSON.parse(projectsJson);
+        // Find the project by ID
+        const projectIndex = rawProjects.findIndex((p) => p.id === projectId);
+        if (projectIndex === -1) {
+            throw new Error(`Project with ID ${projectId} not found`);
+        }
+        // Update the archived status
+        rawProjects[projectIndex].archived = archived;
+        // Write back to file
+        await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8");
+        // Update cache if it exists
+        if (this.cachedProjects) {
+            const cachedProjectIndex = this.cachedProjects.findIndex(p => p.id === projectId);
+            if (cachedProjectIndex !== -1) {
+                this.cachedProjects[cachedProjectIndex] = {
+                    ...this.cachedProjects[cachedProjectIndex],
+                    archived
+                };
+            }
+        }
+    }
+    /**
+     * Create a new project
+     */
+    async createProject(data) {
+        const projectsPath = path.join(DATA_DIR, "projects.json");
+        // Read existing projects
+        const projectsJson = await fs.readFile(projectsPath, "utf-8");
+        const rawProjects = JSON.parse(projectsJson);
+        // Generate unique ID and filenames
+        const id = this.generateUniqueId(rawProjects, data.project_name);
+        const slug = this.slugify(data.project_name);
+        const descriptionFile = `${slug}.md`;
+        // Create description file
+        const descDir = path.join(DATA_DIR, "project_descriptions");
+        await fs.mkdir(descDir, { recursive: true });
+        await fs.writeFile(path.join(descDir, descriptionFile), data.description, "utf-8");
+        // Create resume points files for each category
+        const categoriesWithFiles = [];
+        for (const category of data.categories) {
+            const categorySlug = this.slugify(category.category_name);
+            const resumePointsFile = `${slug}-${categorySlug}.md`;
+            // Create category directory if it doesn't exist
+            const categoryDir = path.join(DATA_DIR, "resume_points", categorySlug);
+            await fs.mkdir(categoryDir, { recursive: true });
+            // Write resume points
+            await fs.writeFile(path.join(categoryDir, resumePointsFile), category.resume_points, "utf-8");
+            categoriesWithFiles.push({
+                category_name: category.category_name,
+                resume_points_file: resumePointsFile,
+            });
+        }
+        // Create new project object
+        const newProject = {
+            id,
+            project_name: data.project_name,
+            description_file: descriptionFile,
+            github: data.github,
+            categories: categoriesWithFiles,
+            user_notes: "",
+            archived: false,
+        };
+        // Add to projects array
+        rawProjects.push(newProject);
+        // Write back to file
+        await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8");
+        // Clear cache to force reload
+        this.clearCache();
+        return id;
+    }
+    /**
+     * Update an existing project
+     */
+    async updateProject(projectId, data) {
+        const projectsPath = path.join(DATA_DIR, "projects.json");
+        // Read existing projects
+        const projectsJson = await fs.readFile(projectsPath, "utf-8");
+        const rawProjects = JSON.parse(projectsJson);
+        // Find the project by ID
+        const projectIndex = rawProjects.findIndex((p) => p.id === projectId);
+        if (projectIndex === -1) {
+            throw new Error(`Project with ID ${projectId} not found`);
+        }
+        const project = rawProjects[projectIndex];
+        const isRenaming = data.project_name && data.project_name !== project.project_name;
+        const oldSlug = this.slugify(project.project_name);
+        const newSlug = isRenaming ? this.slugify(data.project_name) : oldSlug;
+        // Update description if provided
+        if (data.description !== undefined) {
+            const descDir = path.join(DATA_DIR, "project_descriptions");
+            const oldDescPath = path.join(descDir, project.description_file);
+            // If renaming, we need to move the file
+            if (isRenaming) {
+                const newDescriptionFile = `${newSlug}.md`;
+                const newDescPath = path.join(descDir, newDescriptionFile);
+                await fs.rename(oldDescPath, newDescPath).catch(async () => {
+                    // If rename fails (files don't match), create new file
+                    await fs.writeFile(newDescPath, data.description, "utf-8");
+                });
+                project.description_file = newDescriptionFile;
+            }
+            else {
+                await fs.writeFile(oldDescPath, data.description, "utf-8");
+            }
+        }
+        // Update GitHub if provided
+        if (data.github) {
+            project.github = data.github;
+        }
+        // Update categories if provided
+        if (data.categories) {
+            const categoriesWithFiles = [];
+            for (const category of data.categories) {
+                const categorySlug = this.slugify(category.category_name);
+                // For renamed projects, use new slug in filename
+                const filePrefix = newSlug;
+                // Try to find existing resume points file for this category
+                const existingCategory = project.categories.find((c) => this.slugify(c.category_name) === categorySlug);
+                let resumePointsFile;
+                if (existingCategory && !isRenaming) {
+                    // Reuse existing file
+                    resumePointsFile = existingCategory.resume_points_file;
+                }
+                else {
+                    // Create new file
+                    resumePointsFile = `${filePrefix}-${categorySlug}.md`;
+                }
+                // Create/update resume points file
+                const categoryDir = path.join(DATA_DIR, "resume_points", categorySlug);
+                await fs.mkdir(categoryDir, { recursive: true });
+                await fs.writeFile(path.join(categoryDir, resumePointsFile), category.resume_points, "utf-8");
+                categoriesWithFiles.push({
+                    category_name: category.category_name,
+                    resume_points_file: resumePointsFile,
+                });
+            }
+            project.categories = categoriesWithFiles;
+        }
+        // Update project name if provided
+        if (data.project_name) {
+            project.project_name = data.project_name;
+        }
+        // Write back to file
+        await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8");
+        // Clear cache to force reload
+        this.clearCache();
+    }
+    /**
+     * Delete a project
+     */
+    async deleteProject(projectId) {
+        const projectsPath = path.join(DATA_DIR, "projects.json");
+        // Read existing projects
+        const projectsJson = await fs.readFile(projectsPath, "utf-8");
+        const rawProjects = JSON.parse(projectsJson);
+        // Find the project by ID
+        const projectIndex = rawProjects.findIndex((p) => p.id === projectId);
+        if (projectIndex === -1) {
+            throw new Error(`Project with ID ${projectId} not found`);
+        }
+        const project = rawProjects[projectIndex];
+        // Delete description file
+        const descPath = path.join(DATA_DIR, "project_descriptions", project.description_file);
+        await fs.unlink(descPath).catch(() => {
+            // File might not exist, ignore error
+        });
+        // Delete resume points files
+        for (const category of project.categories) {
+            const categorySlug = this.slugify(category.category_name);
+            const resumePath = path.join(DATA_DIR, "resume_points", categorySlug, category.resume_points_file);
+            await fs.unlink(resumePath).catch(() => {
+                // File might not exist, ignore error
+            });
+            // Try to remove category directory if empty
+            const categoryDir = path.join(DATA_DIR, "resume_points", categorySlug);
+            fs.rmdir(categoryDir).catch(() => {
+                // Directory not empty or doesn't exist, ignore error
+            });
+        }
+        // Remove project from array
+        rawProjects.splice(projectIndex, 1);
+        // Write back to file
+        await fs.writeFile(projectsPath, JSON.stringify(rawProjects, null, 2), "utf-8");
+        // Clear cache to force reload
+        this.clearCache();
+    }
+    /**
+     * Clear cache (useful for development)
+     */
+    clearCache() {
+        this.cachedProjects = null;
+    }
+}
+export const projectRepository = ProjectRepository.getInstance();

@@ -1,0 +1,5 @@
+- Built authentication microservice with Node.js and Express, handling 100K+ requests daily with 99.99% uptime
+- Implemented social login integration with Google, GitHub, and Azure AD
+- Created single sign-on (SSO) support across multiple applications with session management
+- Developed rate limiting and account lockout policies to prevent brute force attacks
+- Built comprehensive audit logging and monitoring for security incident response

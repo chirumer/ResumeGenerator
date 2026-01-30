@@ -1,0 +1,5 @@
+- Built RESTful APIs using Express.js and MongoDB
+- Implemented JWT authentication and role-based access control
+- Designed GraphQL API reducing over-fetching by 60%
+- Set up Redis for session management and caching
+- Configured CI/CD pipeline with GitHub Actions for automated testing

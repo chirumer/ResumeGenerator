@@ -1,0 +1,5 @@
+- Designed RESTful API with Express.js and TypeScript, handling 50,000+ requests daily with 99.9% uptime
+- Implemented secure authentication with JWT tokens and bcrypt password hashing
+- Built order processing system with Stripe integration, handling payments and refunds
+- Created admin API endpoints for inventory management and sales analytics
+- Implemented email notification system for order confirmations and shipping updates

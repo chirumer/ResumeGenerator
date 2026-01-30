@@ -1,0 +1,5 @@
+- Built high-performance API Gateway using Go and Kubernetes, handling 10,000+ requests per second
+- Implemented JWT authentication and OAuth2 integration, securing 50+ microservices endpoints
+- Designed custom rate limiting middleware with Redis-backed counters, preventing abuse and ensuring fair usage
+- Developed request/response transformation plugins for legacy system integration
+- Achieved sub-millisecond latency through connection pooling and keep-alive optimizations

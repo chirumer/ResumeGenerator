@@ -1,0 +1,5 @@
+- Led development of enterprise web applications serving Fortune 500 clients
+- Mentored 3 junior developers on best practices and code review processes
+- Architected microservices infrastructure improving scalability by 60%
+- Reduced deployment time from 2 hours to 15 minutes through CI/CD optimization
+- Drove technical decisions for engineering team of 8 developers

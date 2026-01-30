@@ -1,0 +1,5 @@
+- Developed admin dashboard with data tables supporting sorting, filtering, and pagination
+- Built employee onboarding wizard with multi-step form validation
+- Created document management system with PDF preview and download functionality
+- Implemented responsive design ensuring usability across desktop and tablet devices
+- Built analytics dashboard with charts visualizing attendance and leave trends
