@@ -3,7 +3,7 @@
 import { useSelection } from "./useSelection"
 
 export function useWorkExperienceSelection() {
-  const selection = useSelection()
+  const selection = useSelection("work-experience-selection")
 
   return {
     ...selection,

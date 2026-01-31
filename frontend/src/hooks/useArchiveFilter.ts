@@ -1,12 +1,17 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useMemo } from "react"
+import { useLocalStorage } from "./useLocalStorage"
 import type { ProjectWithContent } from "@/types/project"
 
 export type ArchiveFilter = "active" | "archived"
 
-export function useArchiveFilter(projects: ProjectWithContent[]) {
-  const [archiveFilter, setArchiveFilter] = useState<ArchiveFilter>("active")
+export function useArchiveFilter(projects: ProjectWithContent[], storageKey?: string) {
+  const [archiveFilter, setArchiveFilter] = useLocalStorage<ArchiveFilter>(
+    storageKey ?? "",
+    "active",
+    storageKey ? undefined : undefined
+  )
 
   // Filter projects based on archived status
   const filteredProjects = useMemo(() => {

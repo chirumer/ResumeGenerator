@@ -22,6 +22,7 @@ import { useWorkExperienceNotes } from "@/hooks/useWorkExperienceNotes"
 import { useArchiveFilter } from "@/hooks/useArchiveFilter"
 import { useWorkExperienceArchiveFilter } from "@/hooks/useWorkExperienceArchiveFilter"
 import { useWorkExperienceCategorySelection } from "@/hooks/useWorkExperienceCategorySelection"
+import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { toggleProjectArchived, toggleWorkExperienceArchived } from "@/app/actions"
 import { apiClient } from "@/lib/api-client"
 import type { ProjectWithContent } from "@/types/project"
@@ -33,8 +34,8 @@ interface DashboardProps {
 }
 
 export function Dashboard({ initialProjects, initialWorkExperiences }: DashboardProps) {
-  // Tab state
-  const [activeTab, setActiveTab] = useState<'projects' | 'work-experiences'>('projects')
+  // Tab state - persisted to localStorage
+  const [activeTab, setActiveTab] = useLocalStorage<'projects' | 'work-experiences'>('active-tab', 'projects')
 
   // Local state for projects to update archive status
   const [projects, setProjects] = useState<ProjectWithContent[]>(initialProjects)
@@ -55,9 +56,9 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
 
   // Project state management
   const projectSelection = useProjectSelection()
-  const projectArchiveFilter = useArchiveFilter(projects)
-  const projectFilter = useCategoryFilter(projectArchiveFilter.filteredProjects)
-  const categorySelection = useCategorySelection()
+  const projectArchiveFilter = useArchiveFilter(projects, "project-archive-filter")
+  const projectFilter = useCategoryFilter(projectArchiveFilter.filteredProjects, "project-category-filter")
+  const categorySelection = useCategorySelection("project-category-selection")
 
   // Initialize notes from project data
   const initialProjectNotes = useMemo(
@@ -73,9 +74,9 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
 
   // Work experience state management
   const workExperienceSelection = useWorkExperienceSelection()
-  const workExperienceArchiveFilter = useWorkExperienceArchiveFilter(workExperiences)
-  const workExperienceCategoryFilter = useWorkExperienceCategoryFilter(workExperienceArchiveFilter.filteredWorkExperiences)
-  const workExperienceCategorySelection = useWorkExperienceCategorySelection()
+  const workExperienceArchiveFilter = useWorkExperienceArchiveFilter(workExperiences, "work-experience-archive-filter")
+  const workExperienceCategoryFilter = useWorkExperienceCategoryFilter(workExperienceArchiveFilter.filteredWorkExperiences, "work-experience-category-filter")
+  const workExperienceCategorySelection = useWorkExperienceCategorySelection("work-experience-category-selection")
 
   // Initialize work experience notes from work experience data
   const initialWorkExperienceNotes = useMemo(

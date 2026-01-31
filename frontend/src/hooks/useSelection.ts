@@ -1,17 +1,46 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useCallback, useMemo } from "react"
+import { useLocalStorage } from "./useLocalStorage"
 
 interface SelectionState {
   selectedIds: Map<string, number> // entityId -> selectionOrder
   nextOrder: number
 }
 
-export function useSelection() {
-  const [state, setState] = useState<SelectionState>({
-    selectedIds: new Map(),
-    nextOrder: 0,
-  })
+interface SerializedSelectionState {
+  selectedIds: [string, number][]
+  nextOrder: number
+}
+
+export function useSelection(storageKey?: string) {
+  // For localStorage serialization
+  const serialize = (state: SelectionState): string => {
+    const serialized: SerializedSelectionState = {
+      selectedIds: Array.from(state.selectedIds.entries()),
+      nextOrder: state.nextOrder,
+    }
+    return JSON.stringify(serialized)
+  }
+
+  const deserialize = (value: string): SelectionState => {
+    try {
+      const parsed: SerializedSelectionState = JSON.parse(value)
+      return {
+        selectedIds: new Map(parsed.selectedIds),
+        nextOrder: parsed.nextOrder,
+      }
+    } catch {
+      return { selectedIds: new Map(), nextOrder: 0 }
+    }
+  }
+
+  // Use localStorage if key provided, otherwise use regular state
+  const [state, setState] = useLocalStorage<SelectionState>(
+    storageKey ?? "",
+    { selectedIds: new Map(), nextOrder: 0 },
+    storageKey ? { serialize, deserialize } : undefined
+  )
 
   // Toggle single entity selection
   const toggleSelection = useCallback((entityId: string) => {
@@ -25,7 +54,7 @@ export function useSelection() {
         return { selectedIds: newMap, nextOrder: prev.nextOrder + 1 }
       }
     })
-  }, [])
+  }, [setState])
 
   // Check if entity is selected
   const isSelected = useCallback(
@@ -66,7 +95,7 @@ export function useSelection() {
       })
       return { selectedIds: newMap, nextOrder }
     })
-  }, [])
+  }, [setState])
 
   // Deselect a specific entity
   const deselect = useCallback((entityId: string) => {
@@ -75,12 +104,12 @@ export function useSelection() {
       newMap.delete(entityId)
       return { ...prev, selectedIds: newMap }
     })
-  }, [])
+  }, [setState])
 
   // Clear all selections
   const clearAll = useCallback(() => {
     setState({ selectedIds: new Map(), nextOrder: 0 })
-  }, [])
+  }, [setState])
 
   // Reorder selection (for drag and drop in cart)
   const reorder = useCallback((fromIndex: number, toIndex: number) => {
@@ -99,7 +128,7 @@ export function useSelection() {
 
       return { selectedIds: newMap, nextOrder: ordered.length }
     })
-  }, [])
+  }, [setState])
 
   return {
     selectedIds: state.selectedIds,

@@ -1,10 +1,28 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
+import { useCallback, useMemo } from "react"
+import { useLocalStorage } from "./useLocalStorage"
 import type { ProjectWithContent } from "@/types/project"
 
-export function useCategoryFilter(projects: ProjectWithContent[]) {
-  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set())
+export function useCategoryFilter(projects: ProjectWithContent[], storageKey?: string) {
+  // For localStorage serialization of Set
+  const serialize = (set: Set<string>): string => {
+    return JSON.stringify(Array.from(set))
+  }
+
+  const deserialize = (value: string): Set<string> => {
+    try {
+      return new Set(JSON.parse(value))
+    } catch {
+      return new Set()
+    }
+  }
+
+  const [selectedCategories, setSelectedCategories] = useLocalStorage<Set<string>>(
+    storageKey ?? "",
+    new Set(),
+    storageKey ? { serialize, deserialize } : undefined
+  )
 
   // Extract all unique category names from projects
   const allCategories = useMemo(() => {
@@ -26,7 +44,7 @@ export function useCategoryFilter(projects: ProjectWithContent[]) {
       }
       return newSet
     })
-  }, [])
+  }, [setSelectedCategories])
 
   // Filter projects based on selected categories (OR logic - show if any category matches)
   const filteredProjects = useMemo(() => {
@@ -41,7 +59,7 @@ export function useCategoryFilter(projects: ProjectWithContent[]) {
   // Clear all category filters
   const clearFilters = useCallback(() => {
     setSelectedCategories(new Set())
-  }, [])
+  }, [setSelectedCategories])
 
   // Check if a specific category is selected
   const isCategorySelected = useCallback(
