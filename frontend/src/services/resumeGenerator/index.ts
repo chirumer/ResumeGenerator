@@ -1,7 +1,7 @@
 // Minimal resume generator types for frontend
 // The actual resume generation is now handled by the backend API
 
-export type ExportFormat = "pdf" | "gdocs" | "docx"
+export type ExportFormat = "pdf" | "latex" | "gdocs" | "docx"
 
 export interface GeneratorInfo {
   format: ExportFormat
@@ -18,6 +18,13 @@ export function getAllGenerators(): GeneratorInfo[] {
       format: "pdf",
       generator: {
         formatName: "PDF",
+        isEnabled: true,
+      },
+    },
+    {
+      format: "latex",
+      generator: {
+        formatName: "LaTeX Source",
         isEnabled: true,
       },
     },

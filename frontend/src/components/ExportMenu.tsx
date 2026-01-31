@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
-import { FileDown, FileText, FileSpreadsheet, ChevronDown, Loader2 } from "lucide-react"
+import { FileDown, FileText, FileSpreadsheet, ChevronDown, Loader2, Code } from "lucide-react"
 import { getAllGenerators, type ExportFormat } from "@/services/resumeGenerator"
 
 interface ExportMenuProps {
@@ -55,12 +55,13 @@ export function ExportMenu({
         throw new Error(error.error || "Export failed")
       }
 
-      // Download the PDF
+      // Download the file
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = `resume-${new Date().toISOString().split("T")[0]}.pdf`
+      const extension = format === "latex" ? "tex" : "pdf"
+      a.download = `resume-${new Date().toISOString().split("T")[0]}.${extension}`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -77,6 +78,8 @@ export function ExportMenu({
     switch (format) {
       case "pdf":
         return <FileDown className="h-4 w-4 mr-2" />
+      case "latex":
+        return <Code className="h-4 w-4 mr-2" />
       case "gdocs":
         return <FileText className="h-4 w-4 mr-2" />
       case "docx":

@@ -1,4 +1,4 @@
-export type ExportFormat = "pdf" | "gdocs" | "docx"
+export type ExportFormat = "pdf" | "latex" | "gdocs" | "docx"
 
 export interface ResumeGeneratorOptions {
   format: ExportFormat

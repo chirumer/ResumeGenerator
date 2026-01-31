@@ -2,12 +2,13 @@ import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { z } from 'zod';
 import { LatexResumeGenerator } from '../services/LatexResumeGenerator.js';
+import { LatexSourceResumeGenerator } from '../services/LatexSourceResumeGenerator.js';
 import { DisabledResumeGenerator } from '../services/DisabledResumeGenerator.js';
 import { projectRepository } from '../repositories/projectRepository.js';
 import { workExperienceRepository } from '../repositories/workExperienceRepository.js';
 const app = new Hono();
 const ResumeRequestSchema = z.object({
-    format: z.enum(['pdf', 'gdocs', 'docx']),
+    format: z.enum(['pdf', 'latex', 'gdocs', 'docx']),
     projectIds: z.array(z.string()).optional(),
     projectCategories: z.array(z.string()).optional(),
     workExperienceIds: z.array(z.string()).optional(),
@@ -26,7 +27,9 @@ app.post('/', zValidator('json', ResumeRequestSchema), async (c) => {
     // Select generator based on format
     const generator = data.format === 'pdf'
         ? new LatexResumeGenerator()
-        : new DisabledResumeGenerator(data.format.toUpperCase());
+        : data.format === 'latex'
+            ? new LatexSourceResumeGenerator()
+            : new DisabledResumeGenerator(data.format.toUpperCase());
     // Validate if generation is possible
     const canGenerate = generator.canGenerate(generatorOptions);
     if (!canGenerate.valid) {
@@ -44,9 +47,12 @@ app.post('/', zValidator('json', ResumeRequestSchema), async (c) => {
     if (result.data instanceof Blob) {
         const buffer = await result.data.arrayBuffer();
         const uint8Array = new Uint8Array(buffer);
+        const contentType = result.filename?.endsWith('.tex')
+            ? 'application/x-tex'
+            : 'application/pdf';
         return new Response(uint8Array, {
             headers: {
-                'Content-Type': 'application/pdf',
+                'Content-Type': contentType,
                 'Content-Disposition': `attachment; filename="${result.filename || 'resume.pdf'}"`,
             },
         });
