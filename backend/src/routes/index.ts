@@ -4,6 +4,7 @@ import { projectsRouter } from './projects.js'
 import { workExperiencesRouter } from './workExperiences.js'
 import { resumeRouter } from './resume.js'
 import { entriesRouter } from './entries.js'
+import { verticalSpaceRouter } from './verticalSpace.js'
 
 const app = new Hono()
 
@@ -19,6 +20,7 @@ app.route('/api/projects', projectsRouter)
 app.route('/api/work-experiences', workExperiencesRouter)
 app.route('/api/resume', resumeRouter)
 app.route('/api/entries', entriesRouter)
+app.route('/api/vertical-space', verticalSpaceRouter)
 
 // Health check
 app.get('/health', (c) => {

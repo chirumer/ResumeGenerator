@@ -222,4 +222,29 @@ export const apiClient = {
     const result = await response.json() as { url?: string }
     return result.url || ''
   },
+
+  // ========== Vertical Space Calculation ==========
+  calculateVerticalSpace: async (data: {
+    projectIds: string[]
+    projectCategories: string[]
+    workExperienceIds: string[]
+    workExperienceCategories: string[]
+    targetPages: number
+  }): Promise<{
+    status: 'fit' | 'overflow'
+    space_left_pts: number
+    excess_pts: number
+    page_count: number
+    target_pages: number
+    metric_unit: string
+    error?: string
+  }> => {
+    const response = await fetch(`${API_BASE}/api/vertical-space`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+
+    return handleResponse(response)
+  },
 }

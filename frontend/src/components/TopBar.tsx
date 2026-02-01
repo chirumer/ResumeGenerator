@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { ExportMenu } from "./ExportMenu"
 import { FileText } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -26,7 +27,12 @@ export function TopBar({
   orderedSelectedWorkExperienceIds,
   orderedSelectedWorkExperienceCategories,
 }: TopBarProps) {
+  const [mounted, setMounted] = useState(false)
   const totalSelected = projectSelectedCount + workExperienceSelectedCount
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -44,17 +50,17 @@ export function TopBar({
               className={cn(
                 "relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
                 "hover:text-foreground/80",
-                activeTab === 'work-experiences'
+                mounted && activeTab === 'work-experiences'
                   ? "text-foreground"
                   : "text-muted-foreground"
               )}
             >
               Work Experiences
-              <Badge variant={workExperienceSelectedCount > 0 ? 'default' : 'secondary'}>
+              <Badge variant={workExperienceSelectedCount > 0 ? 'default' : 'secondary'} suppressHydrationWarning>
                 {workExperienceSelectedCount}
               </Badge>
-              {activeTab === 'work-experiences' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+              {mounted && activeTab === 'work-experiences' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
               )}
             </button>
             <button
@@ -62,17 +68,19 @@ export function TopBar({
               className={cn(
                 "relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
                 "hover:text-foreground/80",
-                activeTab === 'projects'
+                mounted && activeTab === 'projects'
                   ? "text-foreground"
-                  : "text-muted-foreground"
+                  : mounted && activeTab === 'work-experiences'
+                    ? "text-muted-foreground"
+                    : "text-foreground"
               )}
             >
               Projects
-              <Badge variant={projectSelectedCount > 0 ? 'default' : 'secondary'}>
+              <Badge variant={projectSelectedCount > 0 ? 'default' : 'secondary'} suppressHydrationWarning>
                 {projectSelectedCount}
               </Badge>
-              {activeTab === 'projects' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+              {mounted && activeTab === 'projects' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
               )}
             </button>
           </div>

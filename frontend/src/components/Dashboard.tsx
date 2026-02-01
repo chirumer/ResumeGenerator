@@ -411,11 +411,13 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
             <SelectionPanel
               projects={projects}
               orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+              orderedSelectedProjectCategories={orderedSelectedProjectCategories}
               onDeselectProject={projectSelection.deselect}
               onClearAllProjects={projectSelection.clearAll}
               onReorderProjects={projectSelection.reorder}
               workExperiences={workExperiences}
               orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+              orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
               onDeselectWorkExperience={workExperienceSelection.deselect}
               onClearAllWorkExperiences={workExperienceSelection.clearAll}
               onReorderWorkExperiences={workExperienceSelection.reorder}
@@ -462,11 +464,13 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
             <SelectionPanel
               projects={projects}
               orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+              orderedSelectedProjectCategories={orderedSelectedProjectCategories}
               onDeselectProject={projectSelection.deselect}
               onClearAllProjects={projectSelection.clearAll}
               onReorderProjects={projectSelection.reorder}
               workExperiences={workExperiences}
               orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+              orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
               onDeselectWorkExperience={workExperienceSelection.deselect}
               onClearAllWorkExperiences={workExperienceSelection.clearAll}
               onReorderWorkExperiences={workExperienceSelection.reorder}
