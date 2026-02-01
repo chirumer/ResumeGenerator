@@ -50,7 +50,7 @@ export function TopBar({
               )}
             >
               Work Experiences
-              <Badge variant={workExperienceSelectedCount > 0 ? 'default' : 'secondary'}>
+              <Badge variant={workExperienceSelectedCount > 0 ? 'default' : 'secondary'} suppressHydrationWarning>
                 {workExperienceSelectedCount}
               </Badge>
               {activeTab === 'work-experiences' && (
@@ -68,7 +68,7 @@ export function TopBar({
               )}
             >
               Projects
-              <Badge variant={projectSelectedCount > 0 ? 'default' : 'secondary'}>
+              <Badge variant={projectSelectedCount > 0 ? 'default' : 'secondary'} suppressHydrationWarning>
                 {projectSelectedCount}
               </Badge>
               {activeTab === 'projects' && (
