@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo } from "react"
+import { useCallback, useMemo, useRef } from "react"
 import { useLocalStorage } from "./useLocalStorage"
 
 interface SelectionState {
@@ -13,34 +13,39 @@ interface SerializedSelectionState {
   nextOrder: number
 }
 
+// Define serialize/deserialize outside the hook to keep them stable
+const serialize = (state: SelectionState): string => {
+  const serialized: SerializedSelectionState = {
+    selectedIds: Array.from(state.selectedIds.entries()),
+    nextOrder: state.nextOrder,
+  }
+  return JSON.stringify(serialized)
+}
+
+const deserialize = (value: string): SelectionState => {
+  try {
+    const parsed: SerializedSelectionState = JSON.parse(value)
+    return {
+      selectedIds: new Map(parsed.selectedIds),
+      nextOrder: parsed.nextOrder,
+    }
+  } catch {
+    return { selectedIds: new Map(), nextOrder: 0 }
+  }
+}
+
 export function useSelection(storageKey?: string) {
-  // For localStorage serialization
-  const serialize = (state: SelectionState): string => {
-    const serialized: SerializedSelectionState = {
-      selectedIds: Array.from(state.selectedIds.entries()),
-      nextOrder: state.nextOrder,
-    }
-    return JSON.stringify(serialized)
-  }
-
-  const deserialize = (value: string): SelectionState => {
-    try {
-      const parsed: SerializedSelectionState = JSON.parse(value)
-      return {
-        selectedIds: new Map(parsed.selectedIds),
-        nextOrder: parsed.nextOrder,
-      }
-    } catch {
-      return { selectedIds: new Map(), nextOrder: 0 }
-    }
-  }
-
   // Use localStorage if key provided, otherwise use regular state
   const [state, setState] = useLocalStorage<SelectionState>(
     storageKey ?? "",
     { selectedIds: new Map(), nextOrder: 0 },
     storageKey ? { serialize, deserialize } : undefined
   )
+
+  // Use a ref to track the current state for stable callbacks
+  // Update synchronously during render (not in useEffect) so callbacks read current state
+  const stateRef = useRef<SelectionState>(state)
+  stateRef.current = state
 
   // Toggle single entity selection
   const toggleSelection = useCallback((entityId: string) => {
@@ -56,24 +61,25 @@ export function useSelection(storageKey?: string) {
     })
   }, [setState])
 
-  // Check if entity is selected
+  // Check if entity is selected - uses ref for stability
   const isSelected = useCallback(
-    (entityId: string) => state.selectedIds.has(entityId),
-    [state.selectedIds]
+    (entityId: string) => stateRef.current.selectedIds.has(entityId),
+    []
   )
 
-  // Get selection order (1-indexed for display)
+  // Get selection order (1-indexed for display) - uses ref for stability
   const getSelectionOrder = useCallback(
     (entityId: string): number | null => {
-      if (!state.selectedIds.has(entityId)) return null
+      const selectedIds = stateRef.current.selectedIds
+      if (!selectedIds.has(entityId)) return null
       // Calculate actual position based on order values
-      const order = state.selectedIds.get(entityId)!
-      const sortedOrders = Array.from(state.selectedIds.values()).sort(
+      const order = selectedIds.get(entityId)!
+      const sortedOrders = Array.from(selectedIds.values()).sort(
         (a, b) => a - b
       )
       return sortedOrders.indexOf(order) + 1
     },
-    [state.selectedIds]
+    []
   )
 
   // Get ordered list of selected entity IDs
