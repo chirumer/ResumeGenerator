@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { X, Trash2, GripVertical, ListOrdered, Briefcase, FolderKanban, Ruler, ChevronDown, Loader2, Check, AlertTriangle } from "lucide-react"
+import { X, Trash2, GripVertical, ListOrdered, Briefcase, FolderKanban, Ruler, ChevronDown, Loader2, Check, AlertTriangle, Minimize2 } from "lucide-react"
 import type { ProjectWithContent } from "@/types/project"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 import { cn } from "@/lib/utils"
@@ -221,8 +221,8 @@ export function SelectionPanel({
   const [targetPages, setTargetPages] = useState(1)
   const [spaceResult, setSpaceResult] = useState<{
     status: 'fit' | 'overflow'
-    space_left_pts: number
-    excess_pts: number
+    true_max_space_pts: number
+    shrink_used_pts: number
     page_count: number
     error?: string
   } | null>(null)
@@ -259,8 +259,8 @@ export function SelectionPanel({
       } catch (err) {
         setSpaceResult({
           status: 'overflow',
-          space_left_pts: 0,
-          excess_pts: 0,
+          true_max_space_pts: 0,
+          shrink_used_pts: 0,
           page_count: 0,
           error: err instanceof Error ? err.message : 'Failed to calculate space',
         })
@@ -394,10 +394,16 @@ export function SelectionPanel({
                         </span>
                       </div>
                       <span className="text-sm font-mono">
-                        {spaceResult.status === 'fit' 
-                          ? `${Math.round(spaceResult.space_left_pts)} pt left`
-                          : `${Math.round(spaceResult.excess_pts)} pt over`
-                        }
+                        {`${Math.round(spaceResult.true_max_space_pts)} pt`}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400">
+                      <div className="flex items-center gap-2">
+                        <Minimize2 className="w-4 h-4" />
+                        <span className="text-sm font-medium">Shrink used</span>
+                      </div>
+                      <span className="text-sm font-mono">
+                        {`${Math.round(spaceResult.shrink_used_pts)} pt`}
                       </span>
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground">
