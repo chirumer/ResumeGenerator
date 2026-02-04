@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ExportMenu } from "./ExportMenu"
-import { FileText, Settings } from "lucide-react"
+import { FileText, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -10,13 +10,12 @@ import { cn } from "@/lib/utils"
 interface TopBarProps {
   projectSelectedCount: number
   workExperienceSelectedCount: number
-  activeTab: 'projects' | 'work-experiences'
-  onTabChange: (tab: 'projects' | 'work-experiences') => void
+  activeTab: 'general' | 'projects' | 'work-experiences'
+  onTabChange: (tab: 'general' | 'projects' | 'work-experiences') => void
   orderedSelectedProjectIds: string[]
   orderedSelectedProjectCategories: string[]
   orderedSelectedWorkExperienceIds: string[]
   orderedSelectedWorkExperienceCategories: string[]
-  onOpenSettings?: () => void
 }
 
 export function TopBar({
@@ -28,7 +27,6 @@ export function TopBar({
   orderedSelectedProjectCategories,
   orderedSelectedWorkExperienceIds,
   orderedSelectedWorkExperienceCategories,
-  onOpenSettings,
 }: TopBarProps) {
   const [mounted, setMounted] = useState(false)
   const totalSelected = projectSelectedCount + workExperienceSelectedCount
@@ -48,6 +46,22 @@ export function TopBar({
 
           {/* Tab Navigation */}
           <div className="flex items-center gap-1">
+            <button
+              onClick={() => onTabChange('general')}
+              className={cn(
+                "relative flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
+                "hover:text-foreground/80",
+                mounted && activeTab === 'general'
+                  ? "text-foreground"
+                  : "text-muted-foreground"
+              )}
+            >
+              <User className="h-4 w-4" />
+              General
+              {mounted && activeTab === 'general' && (
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
+              )}
+            </button>
             <button
               onClick={() => onTabChange('work-experiences')}
               className={cn(
@@ -73,9 +87,7 @@ export function TopBar({
                 "hover:text-foreground/80",
                 mounted && activeTab === 'projects'
                   ? "text-foreground"
-                  : mounted && activeTab === 'work-experiences'
-                    ? "text-muted-foreground"
-                    : "text-foreground"
+                  : "text-muted-foreground"
               )}
             >
               Projects
@@ -90,18 +102,6 @@ export function TopBar({
         </div>
 
         <div className="flex items-center gap-4">
-          {onOpenSettings && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onOpenSettings}
-              className="gap-2"
-            >
-              <Settings className="h-4 w-4" />
-              Settings
-            </Button>
-          )}
-
           <ExportMenu
             selectedCount={totalSelected}
             orderedSelectedProjectIds={orderedSelectedProjectIds}

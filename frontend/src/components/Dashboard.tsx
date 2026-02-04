@@ -13,7 +13,7 @@ import { WorkExperienceDescriptionModal } from "./WorkExperienceDescriptionModal
 import { WorkExperienceCategoryFilterBar } from "./WorkExperienceCategoryFilterBar"
 import { WorkExperienceGrid } from "./WorkExperienceGrid"
 import { EntryFormModal } from "./EntryFormModal"
-import { GeneralSettings } from "./GeneralSettings"
+import { GeneralInfoGrid } from "./GeneralInfoGrid"
 import { useProjectSelection } from "@/hooks/useProjectSelection"
 import { useWorkExperienceSelection } from "@/hooks/useWorkExperienceSelection"
 import { useCategoryFilter } from "@/hooks/useCategoryFilter"
@@ -40,11 +40,10 @@ interface DashboardProps {
 
 export function Dashboard({ initialProjects, initialWorkExperiences, initialGeneral }: DashboardProps) {
   // Tab state - persisted to localStorage
-  const [activeTab, setActiveTab] = useLocalStorage<'projects' | 'work-experiences'>('active-tab', 'projects')
+  const [activeTab, setActiveTab] = useLocalStorage<'general' | 'projects' | 'work-experiences'>('active-tab', 'general')
 
   // General settings state
   const [general, setGeneral] = useState<General>(initialGeneral)
-  const [settingsModalOpen, setSettingsModalOpen] = useState(false)
 
   // Track if component is mounted (client-side) to avoid hydration mismatches
   const [isMounted, setIsMounted] = useState(false)
@@ -391,10 +390,27 @@ export function Dashboard({ initialProjects, initialWorkExperiences, initialGene
         orderedSelectedProjectCategories={orderedSelectedProjectCategories}
         orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
         orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
-        onOpenSettings={() => setSettingsModalOpen(true)}
       />
 
-      {activeTab === 'projects' ? (
+      {activeTab === 'general' ? (
+        <>
+          {!isMounted ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <main className="flex-1 overflow-auto p-6">
+              <GeneralInfoGrid
+                general={general}
+                onSave={async (data) => {
+                  await apiClient.updateGeneral(data)
+                  await refetchGeneral()
+                }}
+              />
+            </main>
+          )}
+        </>
+      ) : activeTab === 'projects' ? (
         <>
           {!isMounted ? (
             <div className="h-14 border-b flex items-center px-6">
@@ -567,16 +583,6 @@ export function Dashboard({ initialProjects, initialWorkExperiences, initialGene
         mode={entryModalMode}
         initialData={entryModalInitialData}
         onSave={handleSaveEntry}
-      />
-
-      <GeneralSettings
-        open={settingsModalOpen}
-        onOpenChange={setSettingsModalOpen}
-        initialData={general}
-        onSave={async (data) => {
-          await apiClient.updateGeneral(data)
-          await refetchGeneral()
-        }}
       />
     </div>
   )
