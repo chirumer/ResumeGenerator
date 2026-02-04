@@ -59,7 +59,7 @@ export function WorkExperienceCard({
   return (
     <Card
       className={cn(
-        "w-[350px] flex flex-col h-[410px] transition-all",
+        "w-[350px] flex flex-col h-[480px] overflow-visible transition-all",
         isSelected && "ring-2 ring-primary"
       )}
     >
@@ -179,7 +179,7 @@ export function WorkExperienceCard({
                 <ChevronDown className="h-3 w-3 ml-2" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start">
+            <DropdownMenuContent align="center" side="top">
               {availableCategories.map((category) => (
                 <DropdownMenuItem
                   key={category}
