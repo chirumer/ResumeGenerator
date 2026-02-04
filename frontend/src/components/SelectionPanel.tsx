@@ -1,21 +1,10 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { X, Trash2, GripVertical, ListOrdered, Briefcase, FolderKanban, Ruler, ChevronDown, Loader2, Check, AlertTriangle, Minimize2 } from "lucide-react"
-import type { ProjectWithContent } from "@/types/project"
-import type { WorkExperienceWithContent } from "@/types/workExperience"
-import { cn } from "@/lib/utils"
-import { apiClient } from "@/lib/api-client"
+import { X, Trash2, GripVertical, ListOrdered, Briefcase, FolderKanban } from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -32,6 +21,9 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import type { ProjectWithContent } from "@/types/project"
+import type { WorkExperienceWithContent } from "@/types/workExperience"
+import { cn } from "@/lib/utils"
 
 interface SelectionPanelProps {
   projects: ProjectWithContent[]
@@ -217,72 +209,6 @@ export function SelectionPanel({
 
   const totalSelected = selectedProjects.length + selectedWorkExperiences.length
 
-  // Space calculator state
-  const [targetPages, setTargetPages] = useState(1)
-  const [spaceResult, setSpaceResult] = useState<{
-    status: 'fit' | 'overflow'
-    true_max_space_pts: number
-    shrink_used_pts: number
-    page_count: number
-    error?: string
-  } | null>(null)
-  const [isCalculating, setIsCalculating] = useState(false)
-  const debounceRef = useRef<NodeJS.Timeout | null>(null)
-
-  // Recalculate space whenever selections or target pages change
-  useEffect(() => {
-    // Clear previous debounce
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current)
-    }
-
-    // If no selections, reset result
-    if (totalSelected === 0) {
-      setSpaceResult(null)
-      setIsCalculating(false)
-      return
-    }
-
-    setIsCalculating(true)
-
-    // Debounce the API call
-    debounceRef.current = setTimeout(async () => {
-      try {
-        const result = await apiClient.calculateVerticalSpace({
-          projectIds: orderedSelectedProjectIds,
-          projectCategories: orderedSelectedProjectCategories,
-          workExperienceIds: orderedSelectedWorkExperienceIds,
-          workExperienceCategories: orderedSelectedWorkExperienceCategories,
-          targetPages,
-        })
-        setSpaceResult(result)
-      } catch (err) {
-        setSpaceResult({
-          status: 'overflow',
-          true_max_space_pts: 0,
-          shrink_used_pts: 0,
-          page_count: 0,
-          error: err instanceof Error ? err.message : 'Failed to calculate space',
-        })
-      } finally {
-        setIsCalculating(false)
-      }
-    }, 300)
-
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current)
-      }
-    }
-  }, [
-    orderedSelectedProjectIds,
-    orderedSelectedProjectCategories,
-    orderedSelectedWorkExperienceIds,
-    orderedSelectedWorkExperienceCategories,
-    targetPages,
-    totalSelected,
-  ])
-
   // Sensors for drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -332,89 +258,6 @@ export function SelectionPanel({
           </div>
         ) : (
           <div className="p-2 space-y-4">
-            {/* Space Calculator Card */}
-            <Card className="bg-muted/50">
-              <CardHeader className="p-3 pb-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Ruler className="h-4 w-4 text-muted-foreground" />
-                    <CardTitle className="text-sm font-medium">Resume Space</CardTitle>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-7 gap-1 text-xs">
-                        {targetPages} {targetPages === 1 ? 'page' : 'pages'}
-                        <ChevronDown className="h-3 w-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {[1, 2, 3].map((pages) => (
-                        <DropdownMenuItem
-                          key={pages}
-                          onClick={() => setTargetPages(pages)}
-                          className="gap-2"
-                        >
-                          {targetPages === pages && <Check className="h-3 w-3" />}
-                          <span className={targetPages !== pages ? "ml-5" : ""}>
-                            {pages} {pages === 1 ? 'page' : 'pages'}
-                          </span>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </CardHeader>
-              <CardContent className="p-3 pt-0">
-                {isCalculating ? (
-                  <div className="flex items-center justify-center py-2 gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-xs">Calculating...</span>
-                  </div>
-                ) : spaceResult?.error ? (
-                  <div className="flex items-center gap-2 text-destructive py-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span className="text-xs">{spaceResult.error}</span>
-                  </div>
-                ) : spaceResult ? (
-                  <div className="space-y-2">
-                    <div className={cn(
-                      "flex items-center justify-between p-2 rounded-md",
-                      spaceResult.status === 'fit' 
-                        ? "bg-green-500/10 text-green-700 dark:text-green-400" 
-                        : "bg-red-500/10 text-red-700 dark:text-red-400"
-                    )}>
-                      <div className="flex items-center gap-2">
-                        {spaceResult.status === 'fit' ? (
-                          <Check className="h-4 w-4" />
-                        ) : (
-                          <AlertTriangle className="h-4 w-4" />
-                        )}
-                        <span className="text-sm font-medium">
-                          {spaceResult.status === 'fit' ? 'Fits' : 'Overflow'}
-                        </span>
-                      </div>
-                      <span className="text-sm font-mono">
-                        {`${Math.round(spaceResult.true_max_space_pts)} pt`}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400">
-                      <div className="flex items-center gap-2">
-                        <Minimize2 className="w-4 h-4" />
-                        <span className="text-sm font-medium">Shrink used</span>
-                      </div>
-                      <span className="text-sm font-mono">
-                        {`${Math.round(spaceResult.shrink_used_pts)} pt`}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Actual pages: {spaceResult.page_count}</span>
-                      <span>Target: {targetPages}</span>
-                    </div>
-                  </div>
-                ) : null}
-              </CardContent>
-            </Card>
-
             {/* Work Experiences Section */}
             {selectedWorkExperiences.length > 0 && (
               <div>

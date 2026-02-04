@@ -22,6 +22,9 @@ npm-debug.log*
 .vscode/
 .idea/
 
+# Claude Code
+.claude/
+
 # Project specific data (user's resume content)
 src/data/
 
