@@ -96,7 +96,7 @@ export function ExportMenu({
           ) : (
             <FileDown className="h-4 w-4 mr-2" />
           )}
-          Generate Resume
+          Download
           <ChevronDown className="h-4 w-4 ml-2" />
         </Button>
       </DropdownMenuTrigger>
