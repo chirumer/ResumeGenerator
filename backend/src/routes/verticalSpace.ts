@@ -12,6 +12,7 @@ import {
 } from '../services/dataExtractor.js'
 import { projectRepository } from '../repositories/projectRepository.js'
 import { workExperienceRepository } from '../repositories/workExperienceRepository.js'
+import { generalRepository } from '../repositories/generalRepository.js'
 
 const app = new Hono()
 
@@ -237,8 +238,11 @@ app.post('/', zValidator('json', VerticalSpaceRequestSchema), async (c) => {
       { projectRepository }
     )
 
+    // Get general information
+    const generalInfo = await generalRepository.getGeneralInfo()
+
     // Generate LaTeX content
-    const latexContent = generateLatexResume(workExperiences, projects)
+    const latexContent = generateLatexResume(workExperiences, projects, generalInfo)
 
     // Calculate vertical space
     const result = await calculateVerticalSpace(latexContent, data.targetPages)

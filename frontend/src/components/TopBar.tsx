@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { ExportMenu } from "./ExportMenu"
-import { FileText } from "lucide-react"
+import { FileText, Settings } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 interface TopBarProps {
@@ -15,6 +16,7 @@ interface TopBarProps {
   orderedSelectedProjectCategories: string[]
   orderedSelectedWorkExperienceIds: string[]
   orderedSelectedWorkExperienceCategories: string[]
+  onOpenSettings?: () => void
 }
 
 export function TopBar({
@@ -26,6 +28,7 @@ export function TopBar({
   orderedSelectedProjectCategories,
   orderedSelectedWorkExperienceIds,
   orderedSelectedWorkExperienceCategories,
+  onOpenSettings,
 }: TopBarProps) {
   const [mounted, setMounted] = useState(false)
   const totalSelected = projectSelectedCount + workExperienceSelectedCount
@@ -87,6 +90,17 @@ export function TopBar({
         </div>
 
         <div className="flex items-center gap-4">
+          {onOpenSettings && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onOpenSettings}
+              className="gap-2"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Button>
+          )}
 
           <ExportMenu
             selectedCount={totalSelected}

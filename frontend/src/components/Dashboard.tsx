@@ -13,6 +13,7 @@ import { WorkExperienceDescriptionModal } from "./WorkExperienceDescriptionModal
 import { WorkExperienceCategoryFilterBar } from "./WorkExperienceCategoryFilterBar"
 import { WorkExperienceGrid } from "./WorkExperienceGrid"
 import { EntryFormModal } from "./EntryFormModal"
+import { GeneralSettings } from "./GeneralSettings"
 import { useProjectSelection } from "@/hooks/useProjectSelection"
 import { useWorkExperienceSelection } from "@/hooks/useWorkExperienceSelection"
 import { useCategoryFilter } from "@/hooks/useCategoryFilter"
@@ -28,16 +29,22 @@ import { toggleProjectArchived, toggleWorkExperienceArchived } from "@/app/actio
 import { apiClient } from "@/lib/api-client"
 import type { ProjectWithContent } from "@/types/project"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
+import type { General } from "@/types/general"
 import { Loader2 } from "lucide-react"
 
 interface DashboardProps {
   initialProjects: ProjectWithContent[]
   initialWorkExperiences: WorkExperienceWithContent[]
+  initialGeneral: General
 }
 
-export function Dashboard({ initialProjects, initialWorkExperiences }: DashboardProps) {
+export function Dashboard({ initialProjects, initialWorkExperiences, initialGeneral }: DashboardProps) {
   // Tab state - persisted to localStorage
   const [activeTab, setActiveTab] = useLocalStorage<'projects' | 'work-experiences'>('active-tab', 'projects')
+
+  // General settings state
+  const [general, setGeneral] = useState<General>(initialGeneral)
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false)
 
   // Track if component is mounted (client-side) to avoid hydration mismatches
   const [isMounted, setIsMounted] = useState(false)
@@ -57,6 +64,11 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
   const refetchWorkExperiences = useCallback(async () => {
     const updated = await apiClient.getWorkExperiences()
     setWorkExperiences(updated)
+  }, [])
+
+  const refetchGeneral = useCallback(async () => {
+    const updated = await apiClient.getGeneral()
+    setGeneral(updated)
   }, [])
 
   // Set mounted state after first render to avoid hydration mismatches
@@ -379,6 +391,7 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
         orderedSelectedProjectCategories={orderedSelectedProjectCategories}
         orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
         orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
+        onOpenSettings={() => setSettingsModalOpen(true)}
       />
 
       {activeTab === 'projects' ? (
@@ -554,6 +567,16 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
         mode={entryModalMode}
         initialData={entryModalInitialData}
         onSave={handleSaveEntry}
+      />
+
+      <GeneralSettings
+        open={settingsModalOpen}
+        onOpenChange={setSettingsModalOpen}
+        initialData={general}
+        onSave={async (data) => {
+          await apiClient.updateGeneral(data)
+          await refetchGeneral()
+        }}
       />
     </div>
   )

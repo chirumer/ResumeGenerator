@@ -2,6 +2,7 @@ import type { ProjectWithContent } from "@/types/project"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 import type { Project } from "@/lib/schemas/project"
 import type { WorkExperience } from "@/lib/schemas/workExperience"
+import type { General } from "@/types/general"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -246,5 +247,19 @@ export const apiClient = {
     })
 
     return handleResponse(response)
+  },
+
+  // ========== General Settings ==========
+  getGeneral: async (): Promise<General> => {
+    const response = await fetch(`${API_BASE}/api/general`)
+    return handleResponse<General>(response)
+  },
+
+  updateGeneral: async (data: Partial<General>): Promise<void> => {
+    await fetch(`${API_BASE}/api/general`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }).then(res => handleResponse<{ success: boolean }>(res))
   },
 }

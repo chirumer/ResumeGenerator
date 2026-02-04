@@ -31,8 +31,11 @@ export class LatexSourceResumeGenerator implements IResumeGenerator {
       repositories
     )
 
+    // Get general information
+    const generalInfo = await repositories.generalRepository.getGeneralInfo()
+
     // Generate LaTeX content (reuse existing function)
-    const latexContent = generateLatexResume(workExperiences, projects)
+    const latexContent = generateLatexResume(workExperiences, projects, generalInfo)
 
     // Return as text blob with .tex extension
     return {

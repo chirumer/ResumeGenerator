@@ -2,6 +2,7 @@ import type {
   ResumeWorkExperience,
   ResumeProject,
 } from "./dataExtractor.js"
+import type { General } from "@resume-generator/shared-types"
 
 // Escape special LaTeX characters
 function escapeLatex(text: string): string {
@@ -21,14 +22,32 @@ function escapeLatex(text: string): string {
 // Generate the LaTeX resume content
 export function generateLatexResume(
   workExperiences: ResumeWorkExperience[],
-  projects: ResumeProject[]
+  projects: ResumeProject[],
+  generalInfo: General
 ): string {
-  // Fixed data for testing
-  const name = "Alex Chen"
-  const email = "alex.chen@example.com"
-  const phone = "555-123-4567"
-  const linkedin = "linkedin.com/in/alexchen"
-  const github = "github.com/alexchen"
+  // Use general info from data
+  const name = escapeLatex(generalInfo.name)
+  const email = escapeLatex(generalInfo.email)
+  const phone = escapeLatex(generalInfo.phone)
+  const location = generalInfo.location ? escapeLatex(generalInfo.location) : ""
+
+  // Build links string for header
+  const linksString = generalInfo.links
+    .map((link) => {
+      const escapedUrl = escapeLatex(link.url)
+      const escapedLabel = escapeLatex(link.label)
+      return `\\href{https://${escapedUrl}}{\\underline{${escapedLabel}}}`
+    })
+    .join(" $|$ ")
+
+  // Escape skills
+  const skills = generalInfo.skills
+  const escapedSkills = {
+    languages: escapeLatex(skills.languages || ""),
+    frameworks: escapeLatex(skills.frameworks || ""),
+    tools: escapeLatex(skills.tools || ""),
+    libraries: escapeLatex(skills.libraries || ""),
+  }
 
   // Escape work experience data
   const escapedWorkExperiences = workExperiences.map((exp) => ({
@@ -179,9 +198,7 @@ ${resumePoints}
 %----------HEADING----------
 \\begin{center}
   \\textbf{\\Huge \\scshape ${name}} \\\\ \\vspace{1pt}
-  \\small ${phone} $|$ \\href{mailto:${email}}{\\underline{${email}}} $|$
-  \\href{https://${linkedin}}{\\underline{${linkedin}}} $|$
-  \\href{https://${github}}{\\underline{${github}}}
+  \\small ${phone} $|$ \\href{mailto:${email}}{\\underline{${email}}}${location ? ` $|$ ${location}` : ""}${linksString ? ` $|$ ${linksString}` : ""}
 \\end{center}
 
 %-----------EDUCATION-----------
@@ -220,10 +237,10 @@ ${projectsSection}
 \\section{Technical Skills}
   \\begin{itemize}[leftmargin=0.15in, label={}]
     \\small{\\item{
-      \\textbf{Languages}{: TypeScript, JavaScript, Python, Java, SQL, HTML/CSS} \\\\
-      \\textbf{Frameworks}{: React, Next.js, Node.js, Express, Spring Boot} \\\\
-      \\textbf{Developer Tools}{: Git, Docker, AWS, VS Code, Postman} \\\\
-      \\textbf{Libraries}{: Redux, Tailwind CSS, MongoDB, PostgreSQL}
+      \\textbf{Languages}{: ${escapedSkills.languages}} \\\\
+      \\textbf{Frameworks}{: ${escapedSkills.frameworks}} \\\\
+      \\textbf{Developer Tools}{: ${escapedSkills.tools}} \\\\
+      \\textbf{Libraries}{: ${escapedSkills.libraries}}
     }}
   \\end{itemize}
 

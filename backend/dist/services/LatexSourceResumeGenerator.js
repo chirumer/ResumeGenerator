@@ -8,8 +8,10 @@ export class LatexSourceResumeGenerator {
         const workExperiences = await getWorkExperienceForResume(options.workExperienceIds || [], options.workExperienceCategories || [], repositories);
         // Extract data for projects (using repositories)
         const projects = await getProjectsForResume(options.projectIds || [], options.projectCategories || [], repositories);
+        // Get general information
+        const generalInfo = await repositories.generalRepository.getGeneralInfo();
         // Generate LaTeX content (reuse existing function)
-        const latexContent = generateLatexResume(workExperiences, projects);
+        const latexContent = generateLatexResume(workExperiences, projects, generalInfo);
         // Return as text blob with .tex extension
         return {
             success: true,

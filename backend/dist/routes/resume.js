@@ -6,6 +6,7 @@ import { LatexSourceResumeGenerator } from '../services/LatexSourceResumeGenerat
 import { DisabledResumeGenerator } from '../services/DisabledResumeGenerator.js';
 import { projectRepository } from '../repositories/projectRepository.js';
 import { workExperienceRepository } from '../repositories/workExperienceRepository.js';
+import { generalRepository } from '../repositories/generalRepository.js';
 const app = new Hono();
 const ResumeRequestSchema = z.object({
     format: z.enum(['pdf', 'latex', 'gdocs', 'docx']),
@@ -39,6 +40,7 @@ app.post('/', zValidator('json', ResumeRequestSchema), async (c) => {
     const result = await generator.generate(generatorOptions, {
         projectRepository,
         workExperienceRepository,
+        generalRepository,
     });
     if (!result.success) {
         return c.json({ error: result.error }, 500);

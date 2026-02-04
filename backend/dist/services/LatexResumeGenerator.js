@@ -12,8 +12,10 @@ export class LatexResumeGenerator {
             const workExperiences = await getWorkExperienceForResume(options.workExperienceIds || [], options.workExperienceCategories || [], repositories);
             // Extract data for projects (using repositories)
             const projects = await getProjectsForResume(options.projectIds || [], options.projectCategories || [], repositories);
+            // Get general information
+            const generalInfo = await repositories.generalRepository.getGeneralInfo();
             // Generate LaTeX content
-            const latexContent = generateLatexResume(workExperiences, projects);
+            const latexContent = generateLatexResume(workExperiences, projects, generalInfo);
             // Compile LaTeX to PDF using pdflatex
             const { tmpdir } = await import("os");
             const { join } = await import("path");

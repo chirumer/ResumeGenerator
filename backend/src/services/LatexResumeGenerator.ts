@@ -37,10 +37,14 @@ export class LatexResumeGenerator implements IResumeGenerator {
         repositories
       )
 
+      // Get general information
+      const generalInfo = await repositories.generalRepository.getGeneralInfo()
+
       // Generate LaTeX content
       const latexContent = generateLatexResume(
         workExperiences,
-        projects
+        projects,
+        generalInfo
       )
 
       // Compile LaTeX to PDF using pdflatex
