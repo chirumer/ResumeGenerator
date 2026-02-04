@@ -240,7 +240,7 @@ export function SelectionPanel({
   }
 
   return (
-    <aside className="w-80 border-l bg-muted/20 flex flex-col h-[calc(100vh-4rem)] select-none">
+    <aside className="w-80 border-l bg-muted/20 flex flex-col h-[calc(100vh-4rem-56px)] select-none">
       <div className="p-4 border-b flex items-center justify-between">
         <div className="flex items-center gap-2">
           <ListOrdered className="h-5 w-5" />

@@ -369,7 +369,7 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
   }, [workExperienceSelection.orderedSelectedIds, workExperiences, getEffectiveWorkExperienceCategory, workExperienceCategoryFilter.allCategories])
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       <TopBar
         projectSelectedCount={projectSelection.selectedCount}
         workExperienceSelectedCount={workExperienceSelection.selectedCount}
@@ -403,8 +403,8 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
             />
           )}
 
-          <div className="flex flex-1 overflow-hidden">
-            <main className="flex-1 overflow-auto p-6">
+          <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(100vh - 4rem)' }}>
+            <main className="flex-1 overflow-auto p-4">
               {!isMounted ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -479,8 +479,8 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
             />
           )}
 
-          <div className="flex flex-1 overflow-hidden">
-            <main className="flex-1 overflow-auto p-6">
+          <div className="flex flex-1 overflow-hidden" style={{ height: 'calc(100vh - 4rem)' }}>
+            <main className="flex-1 overflow-auto p-4">
               {!isMounted ? (
                 <div className="flex items-center justify-center h-full">
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
