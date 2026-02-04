@@ -27,6 +27,7 @@ import { toggleProjectArchived, toggleWorkExperienceArchived } from "@/app/actio
 import { apiClient } from "@/lib/api-client"
 import type { ProjectWithContent } from "@/types/project"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
+import { Loader2 } from "lucide-react"
 
 interface DashboardProps {
   initialProjects: ProjectWithContent[]
@@ -36,6 +37,9 @@ interface DashboardProps {
 export function Dashboard({ initialProjects, initialWorkExperiences }: DashboardProps) {
   // Tab state - persisted to localStorage
   const [activeTab, setActiveTab] = useLocalStorage<'projects' | 'work-experiences'>('active-tab', 'projects')
+
+  // Track if component is mounted (client-side) to avoid hydration mismatches
+  const [isMounted, setIsMounted] = useState(false)
 
   // Local state for projects to update archive status
   const [projects, setProjects] = useState<ProjectWithContent[]>(initialProjects)
@@ -52,6 +56,11 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
   const refetchWorkExperiences = useCallback(async () => {
     const updated = await apiClient.getWorkExperiences()
     setWorkExperiences(updated)
+  }, [])
+
+  // Set mounted state after first render to avoid hydration mismatches
+  useEffect(() => {
+    setIsMounted(true)
   }, [])
 
   // Project state management
@@ -373,108 +382,136 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
 
       {activeTab === 'projects' ? (
         <>
-          <CategoryFilterBar
-            allCategories={projectFilter.allCategories}
-            selectedCategories={projectFilter.selectedCategories}
-            onToggleCategory={projectFilter.toggleCategory}
-            onClearFilters={projectFilter.clearFilters}
-            onSelectAll={() =>
-              projectSelection.selectAll(projectFilter.filteredProjects.map((p) => p.id))
-            }
-            filteredCount={projectFilter.filteredProjects.length}
-            totalCount={projectArchiveFilter.filteredProjects.length}
-            archiveFilter={projectArchiveFilter.archiveFilter}
-            onArchiveFilterChange={projectArchiveFilter.setArchiveFilter}
-          />
+          {!isMounted ? (
+            <div className="h-14 border-b flex items-center px-6">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <CategoryFilterBar
+              allCategories={projectFilter.allCategories}
+              selectedCategories={projectFilter.selectedCategories}
+              onToggleCategory={projectFilter.toggleCategory}
+              onClearFilters={projectFilter.clearFilters}
+              onSelectAll={() =>
+                projectSelection.selectAll(projectFilter.filteredProjects.map((p) => p.id))
+              }
+              filteredCount={projectFilter.filteredProjects.length}
+              totalCount={projectArchiveFilter.filteredProjects.length}
+              archiveFilter={projectArchiveFilter.archiveFilter}
+              onArchiveFilterChange={projectArchiveFilter.setArchiveFilter}
+            />
+          )}
 
           <div className="flex flex-1 overflow-hidden">
             <main className="flex-1 overflow-auto p-6">
-              <ProjectGrid
-                projects={projectFilter.filteredProjects}
-                isSelected={projectSelection.isSelected}
-                getSelectionOrder={projectSelection.getSelectionOrder}
-                onToggle={projectSelection.toggleSelection}
-                onViewDescription={setViewingProject}
-                getNote={projectNotes.getNote}
-                onNoteChange={projectNotes.setNote}
-                onArchiveToggle={handleProjectArchiveToggle}
-                onEdit={(id) => handleEditEntry("projects", id)}
-                onDelete={(id) => handleDeleteEntry("projects", id)}
-                onAddEntry={() => handleAddEntry("projects")}
-                getCategory={getCategoryForProject}
-                onCategoryChange={categorySelection.setCategory}
-                filteredCategories={projectFilter.hasActiveFilters ? Array.from(projectFilter.selectedCategories) : undefined}
-                showAddCard={projectArchiveFilter.archiveFilter !== "archived"}
-              />
+              {!isMounted ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <ProjectGrid
+                  projects={projectFilter.filteredProjects}
+                  isSelected={projectSelection.isSelected}
+                  getSelectionOrder={projectSelection.getSelectionOrder}
+                  onToggle={projectSelection.toggleSelection}
+                  onViewDescription={setViewingProject}
+                  getNote={projectNotes.getNote}
+                  onNoteChange={projectNotes.setNote}
+                  onArchiveToggle={handleProjectArchiveToggle}
+                  onEdit={(id) => handleEditEntry("projects", id)}
+                  onDelete={(id) => handleDeleteEntry("projects", id)}
+                  onAddEntry={() => handleAddEntry("projects")}
+                  getCategory={getCategoryForProject}
+                  onCategoryChange={categorySelection.setCategory}
+                  filteredCategories={projectFilter.hasActiveFilters ? Array.from(projectFilter.selectedCategories) : undefined}
+                  showAddCard={projectArchiveFilter.archiveFilter !== "archived"}
+                />
+              )}
             </main>
 
-            <SelectionPanel
-              projects={projects}
-              orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
-              orderedSelectedProjectCategories={orderedSelectedProjectCategories}
-              onDeselectProject={projectSelection.deselect}
-              onClearAllProjects={projectSelection.clearAll}
-              onReorderProjects={projectSelection.reorder}
-              workExperiences={workExperiences}
-              orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
-              orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
-              onDeselectWorkExperience={workExperienceSelection.deselect}
-              onClearAllWorkExperiences={workExperienceSelection.clearAll}
-              onReorderWorkExperiences={workExperienceSelection.reorder}
-            />
+            {!isMounted ? null : (
+              <SelectionPanel
+                projects={projects}
+                orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+                orderedSelectedProjectCategories={orderedSelectedProjectCategories}
+                onDeselectProject={projectSelection.deselect}
+                onClearAllProjects={projectSelection.clearAll}
+                onReorderProjects={projectSelection.reorder}
+                workExperiences={workExperiences}
+                orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+                orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
+                onDeselectWorkExperience={workExperienceSelection.deselect}
+                onClearAllWorkExperiences={workExperienceSelection.clearAll}
+                onReorderWorkExperiences={workExperienceSelection.reorder}
+              />
+            )}
           </div>
         </>
       ) : (
         <>
-          <WorkExperienceCategoryFilterBar
-            allCategories={workExperienceCategoryFilter.allCategories}
-            selectedCategories={workExperienceCategoryFilter.selectedCategories}
-            onToggleCategory={workExperienceCategoryFilter.toggleCategory}
-            onClearFilters={workExperienceCategoryFilter.clearFilters}
-            onSelectAll={() =>
-              workExperienceSelection.selectAll(workExperienceCategoryFilter.filteredWorkExperiences.map((we) => we.id))
-            }
-            filteredCount={workExperienceCategoryFilter.filteredWorkExperiences.length}
-            totalCount={workExperienceArchiveFilter.filteredWorkExperiences.length}
-            archiveFilter={workExperienceArchiveFilter.archiveFilter}
-            onArchiveFilterChange={workExperienceArchiveFilter.setArchiveFilter}
-          />
+          {!isMounted ? (
+            <div className="h-14 border-b flex items-center px-6">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <WorkExperienceCategoryFilterBar
+              allCategories={workExperienceCategoryFilter.allCategories}
+              selectedCategories={workExperienceCategoryFilter.selectedCategories}
+              onToggleCategory={workExperienceCategoryFilter.toggleCategory}
+              onClearFilters={workExperienceCategoryFilter.clearFilters}
+              onSelectAll={() =>
+                workExperienceSelection.selectAll(workExperienceCategoryFilter.filteredWorkExperiences.map((we) => we.id))
+              }
+              filteredCount={workExperienceCategoryFilter.filteredWorkExperiences.length}
+              totalCount={workExperienceArchiveFilter.filteredWorkExperiences.length}
+              archiveFilter={workExperienceArchiveFilter.archiveFilter}
+              onArchiveFilterChange={workExperienceArchiveFilter.setArchiveFilter}
+            />
+          )}
 
           <div className="flex flex-1 overflow-hidden">
             <main className="flex-1 overflow-auto p-6">
-              <WorkExperienceGrid
-                workExperiences={workExperienceCategoryFilter.filteredWorkExperiences}
-                isSelected={workExperienceSelection.isSelected}
-                getSelectionOrder={workExperienceSelection.getSelectionOrder}
-                onToggle={workExperienceSelection.toggleSelection}
-                getNote={workExperienceNotes.getNote}
-                onNoteChange={(id, note) => workExperienceNotes.setNote(id, note)}
-                onArchiveToggle={handleWorkExperienceArchiveToggle}
-                onEdit={(id) => handleEditEntry("work-experiences", id)}
-                onDelete={(id) => handleDeleteEntry("work-experiences", id)}
-                onAddEntry={() => handleAddEntry("work-experiences")}
-                selectedCategory={workExperienceCategorySelection.getCategory}
-                onCategoryChange={workExperienceCategorySelection.setCategory}
-                filteredCategories={workExperienceCategoryFilter.hasActiveFilters ? Array.from(workExperienceCategoryFilter.selectedCategories) : undefined}
-                onViewDescription={setViewingWorkExperience}
-                showAddCard={workExperienceArchiveFilter.archiveFilter !== "archived"}
-              />
+              {!isMounted ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <WorkExperienceGrid
+                  workExperiences={workExperienceCategoryFilter.filteredWorkExperiences}
+                  isSelected={workExperienceSelection.isSelected}
+                  getSelectionOrder={workExperienceSelection.getSelectionOrder}
+                  onToggle={workExperienceSelection.toggleSelection}
+                  getNote={workExperienceNotes.getNote}
+                  onNoteChange={(id, note) => workExperienceNotes.setNote(id, note)}
+                  onArchiveToggle={handleWorkExperienceArchiveToggle}
+                  onEdit={(id) => handleEditEntry("work-experiences", id)}
+                  onDelete={(id) => handleDeleteEntry("work-experiences", id)}
+                  onAddEntry={() => handleAddEntry("work-experiences")}
+                  selectedCategory={workExperienceCategorySelection.getCategory}
+                  onCategoryChange={workExperienceCategorySelection.setCategory}
+                  filteredCategories={workExperienceCategoryFilter.hasActiveFilters ? Array.from(workExperienceCategoryFilter.selectedCategories) : undefined}
+                  onViewDescription={setViewingWorkExperience}
+                  showAddCard={workExperienceArchiveFilter.archiveFilter !== "archived"}
+                />
+              )}
             </main>
 
-            <SelectionPanel
-              projects={projects}
-              orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
-              orderedSelectedProjectCategories={orderedSelectedProjectCategories}
-              onDeselectProject={projectSelection.deselect}
-              onClearAllProjects={projectSelection.clearAll}
-              onReorderProjects={projectSelection.reorder}
-              workExperiences={workExperiences}
-              orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
-              orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
-              onDeselectWorkExperience={workExperienceSelection.deselect}
-              onClearAllWorkExperiences={workExperienceSelection.clearAll}
-              onReorderWorkExperiences={workExperienceSelection.reorder}
-            />
+            {!isMounted ? null : (
+              <SelectionPanel
+                projects={projects}
+                orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+                orderedSelectedProjectCategories={orderedSelectedProjectCategories}
+                onDeselectProject={projectSelection.deselect}
+                onClearAllProjects={projectSelection.clearAll}
+                onReorderProjects={projectSelection.reorder}
+                workExperiences={workExperiences}
+                orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+                orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
+                onDeselectWorkExperience={workExperienceSelection.deselect}
+                onClearAllWorkExperiences={workExperienceSelection.clearAll}
+                onReorderWorkExperiences={workExperienceSelection.reorder}
+              />
+            )}
           </div>
         </>
       )}
