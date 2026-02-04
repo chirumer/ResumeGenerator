@@ -7,6 +7,7 @@ import { TopBar } from "./TopBar"
 import { CategoryFilterBar } from "./CategoryFilterBar"
 import { ProjectGrid } from "./ProjectGrid"
 import { SelectionPanel } from "./SelectionPanel"
+import { PreviewPanel } from "./PreviewPanel"
 import { DescriptionModal } from "./DescriptionModal"
 import { WorkExperienceDescriptionModal } from "./WorkExperienceDescriptionModal"
 import { WorkExperienceCategoryFilterBar } from "./WorkExperienceCategoryFilterBar"
@@ -430,20 +431,29 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
             </main>
 
             {!isMounted ? null : (
-              <SelectionPanel
-                projects={projects}
-                orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
-                orderedSelectedProjectCategories={orderedSelectedProjectCategories}
-                onDeselectProject={projectSelection.deselect}
-                onClearAllProjects={projectSelection.clearAll}
-                onReorderProjects={projectSelection.reorder}
-                workExperiences={workExperiences}
-                orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
-                orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
-                onDeselectWorkExperience={workExperienceSelection.deselect}
-                onClearAllWorkExperiences={workExperienceSelection.clearAll}
-                onReorderWorkExperiences={workExperienceSelection.reorder}
-              />
+              <div className="flex border-l">
+                <SelectionPanel
+                  projects={projects}
+                  orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+                  orderedSelectedProjectCategories={orderedSelectedProjectCategories}
+                  onDeselectProject={projectSelection.deselect}
+                  onClearAllProjects={projectSelection.clearAll}
+                  onReorderProjects={projectSelection.reorder}
+                  workExperiences={workExperiences}
+                  orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+                  orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
+                  onDeselectWorkExperience={workExperienceSelection.deselect}
+                  onClearAllWorkExperiences={workExperienceSelection.clearAll}
+                  onReorderWorkExperiences={workExperienceSelection.reorder}
+                />
+                <PreviewPanel
+                  selectedCount={projectSelection.selectedCount + workExperienceSelection.selectedCount}
+                  orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+                  orderedSelectedProjectCategories={orderedSelectedProjectCategories}
+                  orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+                  orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
+                />
+              </div>
             )}
           </div>
         </>
@@ -497,20 +507,29 @@ export function Dashboard({ initialProjects, initialWorkExperiences }: Dashboard
             </main>
 
             {!isMounted ? null : (
-              <SelectionPanel
-                projects={projects}
-                orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
-                orderedSelectedProjectCategories={orderedSelectedProjectCategories}
-                onDeselectProject={projectSelection.deselect}
-                onClearAllProjects={projectSelection.clearAll}
-                onReorderProjects={projectSelection.reorder}
-                workExperiences={workExperiences}
-                orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
-                orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
-                onDeselectWorkExperience={workExperienceSelection.deselect}
-                onClearAllWorkExperiences={workExperienceSelection.clearAll}
-                onReorderWorkExperiences={workExperienceSelection.reorder}
-              />
+              <div className="flex border-l">
+                <SelectionPanel
+                  projects={projects}
+                  orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+                  orderedSelectedProjectCategories={orderedSelectedProjectCategories}
+                  onDeselectProject={projectSelection.deselect}
+                  onClearAllProjects={projectSelection.clearAll}
+                  onReorderProjects={projectSelection.reorder}
+                  workExperiences={workExperiences}
+                  orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+                  orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
+                  onDeselectWorkExperience={workExperienceSelection.deselect}
+                  onClearAllWorkExperiences={workExperienceSelection.clearAll}
+                  onReorderWorkExperiences={workExperienceSelection.reorder}
+                />
+                <PreviewPanel
+                  selectedCount={projectSelection.selectedCount + workExperienceSelection.selectedCount}
+                  orderedSelectedProjectIds={projectSelection.orderedSelectedIds}
+                  orderedSelectedProjectCategories={orderedSelectedProjectCategories}
+                  orderedSelectedWorkExperienceIds={workExperienceSelection.orderedSelectedIds}
+                  orderedSelectedWorkExperienceCategories={orderedSelectedWorkExperienceCategories}
+                />
+              </div>
             )}
           </div>
         </>
