@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { X, Trash2, GripVertical, ListOrdered, Briefcase, FolderKanban, Ruler, ChevronDown, Loader2, Check, AlertTriangle } from "lucide-react"
+import { X, Trash2, GripVertical, ListOrdered, Briefcase, FolderKanban, Ruler, ChevronDown, Loader2, Check, AlertTriangle, Minimize2 } from "lucide-react"
 import type { ProjectWithContent } from "@/types/project"
 import type { WorkExperienceWithContent } from "@/types/workExperience"
 import { cn } from "@/lib/utils"
@@ -398,7 +398,10 @@ export function SelectionPanel({
                       </span>
                     </div>
                     <div className="flex items-center justify-between p-2 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400">
-                      <span className="text-sm font-medium">Shrink used</span>
+                      <div className="flex items-center gap-2">
+                        <Minimize2 className="w-4 h-4" />
+                        <span className="text-sm font-medium">Shrink used</span>
+                      </div>
                       <span className="text-sm font-mono">
                         {`${Math.round(spaceResult.shrink_used_pts)} pt`}
                       </span>
