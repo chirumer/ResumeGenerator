@@ -12,11 +12,12 @@ interface AddEntryCardProps {
 
 export function AddEntryCard({ section, onClick, className }: AddEntryCardProps) {
   const label = section === "projects" ? "Add Project" : "Add Work Experience"
+  const cardHeight = section === "projects" ? "h-[410px]" : "h-[480px]"
 
   return (
     <Card
       className={cn(
-        "w-[350px] flex flex-col h-[480px] transition-all hover:border-primary hover:bg-accent/50 border-2 border-dashed cursor-pointer",
+        `w-[350px] flex flex-col ${cardHeight} transition-all hover:border-primary hover:bg-accent/50 border-2 border-dashed cursor-pointer`,
         className
       )}
       onClick={onClick}
