@@ -232,8 +232,8 @@ export const apiClient = {
     targetPages: number
   }): Promise<{
     status: 'fit' | 'overflow'
-    space_left_pts: number
-    excess_pts: number
+    true_max_space_pts: number
+    shrink_used_pts: number
     page_count: number
     target_pages: number
     metric_unit: string

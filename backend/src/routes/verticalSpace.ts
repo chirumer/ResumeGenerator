@@ -25,8 +25,8 @@ const VerticalSpaceRequestSchema = z.object({
 
 interface VerticalSpaceResult {
   status: 'fit' | 'overflow'
-  space_left_pts: number
-  excess_pts: number
+  true_max_space_pts: number
+  shrink_used_pts: number
   page_count: number
   target_pages: number
   metric_unit: string
@@ -46,8 +46,8 @@ async function calculateVerticalSpace(
     return { 
       error: 'Invalid LaTeX: Missing \\end{document}',
       status: 'overflow',
-      space_left_pts: 0,
-      excess_pts: 0,
+      true_max_space_pts: 0,
+      shrink_used_pts: 0,
       page_count: 0,
       target_pages: targetPages,
       metric_unit: 'pt'
@@ -61,6 +61,7 @@ async function calculateVerticalSpace(
 \\typeout{PageCount:\\the\\c@page}
 \\typeout{PageTotal:\\the\\pagetotal}
 \\typeout{PageGoal:\\the\\pagegoal}
+\\typeout{PageShrink:\\the\\pageshrink}
 \\typeout{TextHeight:\\the\\textheight}
 \\typeout{===SPACE_CHECK_END===^^J}
 \\makeatother
@@ -107,14 +108,15 @@ async function calculateVerticalSpace(
         const pageMatch = stdout.match(/PageCount:(\d+)/)
         const totalMatch = stdout.match(/PageTotal:([\d.]+)pt/)
         const goalMatch = stdout.match(/PageGoal:([\d.]+)pt/)
+        const shrinkMatch = stdout.match(/PageShrink:([\d.]+)pt/)
         const heightMatch = stdout.match(/TextHeight:([\d.]+)pt/)
 
         if (!pageMatch || !totalMatch || !goalMatch) {
           resolve({
             error: 'Compilation failed or could not parse metrics',
             status: 'overflow',
-            space_left_pts: 0,
-            excess_pts: 0,
+            true_max_space_pts: 0,
+            shrink_used_pts: 0,
             page_count: 0,
             target_pages: targetPages,
             metric_unit: 'pt'
@@ -126,6 +128,7 @@ async function calculateVerticalSpace(
         const pageTotalPts = parseFloat(totalMatch[1])
         const pageGoalPts = parseFloat(goalMatch[1])
         const textHeightPts = heightMatch ? parseFloat(heightMatch[1]) : pageGoalPts
+        const pageShrinkPts = shrinkMatch ? parseFloat(shrinkMatch[1]) : 0
 
         // Calculate space
         const result: VerticalSpaceResult = {
@@ -133,38 +136,46 @@ async function calculateVerticalSpace(
           target_pages: targetPages,
           metric_unit: 'pt',
           status: 'fit',
-          space_left_pts: 0,
-          excess_pts: 0,
+          true_max_space_pts: 0,
+          shrink_used_pts: 0,
         }
+
+        let naturalGapPts = 0
 
         if (pageCount <= targetPages) {
           // CASE: Fits within target
           result.status = 'fit'
-          result.excess_pts = 0
 
           if (pageCount === targetPages) {
             // Ends on the target page
-            result.space_left_pts = pageGoalPts - pageTotalPts
+            naturalGapPts = pageGoalPts - pageTotalPts
           } else {
             // Ends BEFORE the target page
             const spaceOnCurrentPage = pageGoalPts - pageTotalPts
             const emptyPagesCount = targetPages - pageCount
-            result.space_left_pts = spaceOnCurrentPage + (emptyPagesCount * textHeightPts)
+            naturalGapPts = spaceOnCurrentPage + (emptyPagesCount * textHeightPts)
           }
 
           // Handle floating point tolerance
-          if (result.space_left_pts < 0 && result.space_left_pts > -1.0) {
-            result.space_left_pts = 0
+          if (naturalGapPts < 0 && naturalGapPts > -1.0) {
+            naturalGapPts = 0
           }
         } else {
           // CASE: Overflows target
           result.status = 'overflow'
-          result.space_left_pts = 0
 
           // Excess = (Content on final page) + (Full height of fully skipped excess pages)
           const skippedExcessPages = pageCount - targetPages - 1
-          result.excess_pts = pageTotalPts + (skippedExcessPages * textHeightPts)
+          const excessPts = pageTotalPts + (skippedExcessPages * textHeightPts)
+          naturalGapPts = -excessPts
         }
+
+        const trueMaxSpacePts = naturalGapPts + pageShrinkPts
+        const shrinkUsedPts = Math.max(0, Math.min(pageShrinkPts, -naturalGapPts))
+
+        result.true_max_space_pts = trueMaxSpacePts
+        result.shrink_used_pts = shrinkUsedPts
+        result.status = trueMaxSpacePts < 0 ? 'overflow' : 'fit'
 
         resolve(result)
       })
@@ -180,8 +191,8 @@ async function calculateVerticalSpace(
         resolve({
           error: `pdflatex command not found or failed: ${err.message}`,
           status: 'overflow',
-          space_left_pts: 0,
-          excess_pts: 0,
+          true_max_space_pts: 0,
+          shrink_used_pts: 0,
           page_count: 0,
           target_pages: targetPages,
           metric_unit: 'pt'
@@ -198,8 +209,8 @@ async function calculateVerticalSpace(
       resolve({
         error: `Failed to create temp files: ${err}`,
         status: 'overflow',
-        space_left_pts: 0,
-        excess_pts: 0,
+        true_max_space_pts: 0,
+        shrink_used_pts: 0,
         page_count: 0,
         target_pages: targetPages,
         metric_unit: 'pt'
@@ -241,8 +252,8 @@ app.post('/', zValidator('json', VerticalSpaceRequestSchema), async (c) => {
     return c.json({ 
       error: `Failed to calculate vertical space: ${err}`,
       status: 'overflow' as const,
-      space_left_pts: 0,
-      excess_pts: 0,
+      true_max_space_pts: 0,
+      shrink_used_pts: 0,
       page_count: 0,
       target_pages: data.targetPages,
       metric_unit: 'pt'
