@@ -23,7 +23,6 @@ npm-debug.log*
 .idea/
 
 # Project specific data (user's resume content)
-backend/data/
 src/data/
 
 # Local env files
