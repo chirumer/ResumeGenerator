@@ -1,0 +1,24 @@
+{
+  "name": "Your Name",
+  "email": "your.email@example.com",
+  "phone": "555-123-4567",
+  "location": "City, State",
+  "links": [
+    {
+      "type": "linkedin",
+      "url": "linkedin.com/in/yourprofile",
+      "label": "LinkedIn"
+    },
+    {
+      "type": "github",
+      "url": "github.com/yourusername",
+      "label": "GitHub"
+    }
+  ],
+  "skills": {
+    "languages": "TypeScript, JavaScript, Python, SQL",
+    "frameworks": "React, Next.js, Node.js, Express",
+    "tools": "Git, Docker, AWS",
+    "libraries": "Redux, Tailwind CSS, MongoDB"
+  }
+}

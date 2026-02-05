@@ -1,5 +1,6 @@
 [
   {
+    "id": "e-commerce-platform",
     "project_name": "E-Commerce Platform",
     "description_file": "ecommerce-platform.md",
     "github": {
@@ -104,6 +105,7 @@
     "archived": true
   },
   {
+    "id": "task-management-app",
     "project_name": "Task Management App",
     "description_file": "task-management-app.md",
     "github": {
@@ -124,6 +126,7 @@
     "archived": false
   },
   {
+    "id": "real-time-chat-app",
     "project_name": "Real-Time Chat App",
     "description_file": "realtime-chat-app.md",
     "github": {
@@ -144,6 +147,7 @@
     "archived": false
   },
   {
+    "id": "employee-management-system",
     "project_name": "Employee Management System",
     "description_file": "employee-management-system.md",
     "github": {
@@ -164,6 +168,7 @@
     "archived": false
   },
   {
+    "id": "weather-dashboard",
     "project_name": "Weather Dashboard",
     "description_file": "weather-dashboard.md",
     "github": {
@@ -180,6 +185,7 @@
     "archived": false
   },
   {
+    "id": "blog-cms",
     "project_name": "Blog CMS",
     "description_file": "blog-cms.md",
     "github": {
@@ -200,6 +206,7 @@
     "archived": false
   },
   {
+    "id": "recipe-sharing-app",
     "project_name": "Recipe Sharing App",
     "description_file": "recipe-sharing-app.md",
     "github": {
@@ -216,6 +223,7 @@
     "archived": true
   },
   {
+    "id": "portfolio-generator",
     "project_name": "Portfolio Generator",
     "description_file": "portfolio-generator.md",
     "github": {
@@ -232,6 +240,7 @@
     "archived": true
   },
   {
+    "id": "api-gateway-service",
     "project_name": "API Gateway Service",
     "description_file": "api-gateway-service.md",
     "github": {
@@ -252,6 +261,7 @@
     "archived": false
   },
   {
+    "id": "ml-pipeline-platform",
     "project_name": "ML Pipeline Platform",
     "description_file": "ml-pipeline-platform.md",
     "github": {
@@ -272,6 +282,7 @@
     "archived": false
   },
   {
+    "id": "inventory-management-system",
     "project_name": "Inventory Management System",
     "description_file": "inventory-management-system.md",
     "github": {
@@ -292,6 +303,7 @@
     "archived": false
   },
   {
+    "id": "fitness-tracking-mobile-app",
     "project_name": "Fitness Tracking Mobile App",
     "description_file": "fitness-tracking-app.md",
     "github": {
@@ -312,6 +324,7 @@
     "archived": false
   },
   {
+    "id": "security-audit-scanner",
     "project_name": "Security Audit Scanner",
     "description_file": "security-audit-scanner.md",
     "github": {
@@ -332,6 +345,7 @@
     "archived": false
   },
   {
+    "id": "devops-dashboard",
     "project_name": "DevOps Dashboard",
     "description_file": "devops-dashboard.md",
     "github": {
@@ -352,6 +366,7 @@
     "archived": false
   },
   {
+    "id": "recommendation-engine",
     "project_name": "Recommendation Engine",
     "description_file": "recommendation-engine.md",
     "github": {
@@ -372,6 +387,7 @@
     "archived": false
   },
   {
+    "id": "authentication-microservice",
     "project_name": "Authentication Microservice",
     "description_file": "authentication-microservice.md",
     "github": {
